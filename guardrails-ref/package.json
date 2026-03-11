@@ -1,7 +1,7 @@
 {
   "name": "guardrails-ref",
-  "version": "1.0.5",
-  "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, list",
+  "version": "1.0.6",
+  "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, check, list",
   "type": "module",
   "main": "dist/validate.js",
   "bin": {
@@ -11,6 +11,7 @@
     "build": "node scripts/copy-examples.js && tsc",
     "test": "npm run build && node --test test/*.test.js",
     "validate": "node dist/cli.js validate",
+    "check": "node dist/cli.js check",
     "list": "node dist/cli.js list",
     "prepublishOnly": "npm run build"
   },

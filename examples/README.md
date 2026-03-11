@@ -12,5 +12,7 @@ Reference guardrails you can add with `npx guardrails-ref add <name>`.
 | `no-sudo-commands` | `sudo`, `su`, or root commands without approval |
 | `rate-limiting` | Runaway tool calls and API loops |
 | `no-console-in-production` | `console.log` in production code |
+| `require-tests` | Merging code without tests |
+| `no-inline-styles` | Inline `style=` in HTML/JSX |
 
 Each example lives in its own directory with a `GUARDRAIL.md` file. See the [specification](../spec/specification.md) for the format.

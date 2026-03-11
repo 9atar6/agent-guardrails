@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { createRequire } from "node:module";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { program } from "commander";
 import chalk from "chalk";
 import { validatePath, listGuardrails } from "./validate.js";
@@ -8,10 +11,88 @@ import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
 import { runRemove } from "./remove.js";
 
+const require = createRequire(import.meta.url);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = require("../package.json") as { version: string };
+
 program
   .name("guardrails-ref")
   .description("Validate and list Agent Guardrails (GUARDRAIL.md) files")
-  .version("1.0.0");
+  .version(pkg.version);
+
+function runValidate(
+  path: string,
+  options: { json?: boolean; strict?: boolean; minimal?: boolean }
+): void {
+  const result = validatePath(path);
+  const hasWarnings = result.results.some((r) => r.warnings.length > 0);
+  const hasErrors = result.invalid > 0;
+  const strictFail = options.strict && hasWarnings;
+  const exitCode = hasErrors || strictFail ? 1 : 0;
+
+  if (options.minimal) {
+    if (exitCode === 0) {
+      console.log("OK");
+    } else {
+      console.error("FAIL");
+      for (const r of result.results) {
+        if (!r.success) {
+          console.error(r.path, r.errors.join("; "));
+        } else if (options.strict && r.warnings.length > 0) {
+          console.error(r.path, r.warnings.join("; "));
+        }
+      }
+    }
+    process.exit(exitCode);
+    return;
+  }
+
+  if (options.json) {
+    const json = {
+      valid: result.valid,
+      invalid: result.invalid,
+      total: result.total,
+      results: result.results.map((r) => ({
+        path: r.path,
+        success: r.success,
+        errors: r.errors,
+        warnings: r.warnings,
+      })),
+    };
+    console.log(JSON.stringify(json, null, 2));
+    process.exit(exitCode);
+    return;
+  }
+
+  let hasErrorsOut = false;
+  for (const r of result.results) {
+    if (r.success) {
+      const warnStr = r.warnings.length > 0 ? chalk.yellow(` (${r.warnings.length} warnings)`) : "";
+      console.log(chalk.green("✓"), r.path, warnStr);
+      for (const w of r.warnings) {
+        console.log(chalk.yellow("  warning:"), w);
+      }
+    } else {
+      hasErrorsOut = true;
+      console.log(chalk.red("✗"), r.path);
+      for (const e of r.errors) {
+        console.log(chalk.red("  error:"), e);
+      }
+      for (const w of r.warnings) {
+        console.log(chalk.yellow("  warning:"), w);
+      }
+    }
+  }
+
+  if (result.total === 0) {
+    console.log(chalk.yellow("No GUARDRAIL.md or GUARDRAILS.md files found"));
+  } else {
+    console.log();
+    console.log(`Valid: ${result.valid}/${result.total}  Invalid: ${result.invalid}/${result.total}`);
+  }
+
+  process.exit(hasErrorsOut || strictFail ? 1 : 0);
+}
 
 program
   .command("validate [path]")
@@ -19,56 +100,15 @@ program
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
   .action((path = ".", options: { json?: boolean; strict?: boolean } = {}) => {
-    const result = validatePath(path);
-    const hasWarnings = result.results.some((r) => r.warnings.length > 0);
+    runValidate(path, options);
+  });
 
-    if (options.json) {
-      const json = {
-        valid: result.valid,
-        invalid: result.invalid,
-        total: result.total,
-        results: result.results.map((r) => ({
-          path: r.path,
-          success: r.success,
-          errors: r.errors,
-          warnings: r.warnings,
-        })),
-      };
-      console.log(JSON.stringify(json, null, 2));
-      const exitCode = result.invalid > 0 || (options.strict && hasWarnings) ? 1 : 0;
-      process.exit(exitCode);
-      return;
-    }
-
-    let hasErrors = false;
-    for (const r of result.results) {
-      if (r.success) {
-        const warnStr = r.warnings.length > 0 ? chalk.yellow(` (${r.warnings.length} warnings)`) : "";
-        console.log(chalk.green("✓"), r.path, warnStr);
-        for (const w of r.warnings) {
-          console.log(chalk.yellow("  warning:"), w);
-        }
-      } else {
-        hasErrors = true;
-        console.log(chalk.red("✗"), r.path);
-        for (const e of r.errors) {
-          console.log(chalk.red("  error:"), e);
-        }
-        for (const w of r.warnings) {
-          console.log(chalk.yellow("  warning:"), w);
-        }
-      }
-    }
-
-    if (result.total === 0) {
-      console.log(chalk.yellow("No GUARDRAIL.md or GUARDRAILS.md files found"));
-    } else {
-      console.log();
-      console.log(`Valid: ${result.valid}/${result.total}  Invalid: ${result.invalid}/${result.total}`);
-    }
-
-    const strictFail = options.strict && hasWarnings;
-    process.exit(hasErrors || strictFail ? 1 : 0);
+program
+  .command("check [path]")
+  .description("Validate guardrails with minimal output (CI-friendly alias)")
+  .option("-s, --strict", "Fail on warnings")
+  .action((path = ".", options: { strict?: boolean } = {}) => {
+    runValidate(path, { ...options, minimal: true });
   });
 
 program

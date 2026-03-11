@@ -44,6 +44,8 @@ npx guardrails-ref add no-destructive-commands
 npx guardrails-ref add no-new-deps-without-approval
 npx guardrails-ref add no-hardcoded-urls
 npx guardrails-ref add no-sudo-commands
+npx guardrails-ref add require-tests
+npx guardrails-ref add no-inline-styles
 npx guardrails-ref add database-migrations
 npx guardrails-ref add rate-limiting
 npx guardrails-ref add no-console-in-production
@@ -53,6 +55,7 @@ npx guardrails-ref add no-console-in-production
 
 ```bash
 npx guardrails-ref validate .
+npx guardrails-ref check .     # Minimal output (CI)
 npx guardrails-ref list .
 npx guardrails-ref validate . --json   # JSON output for scripting
 npx guardrails-ref validate . --strict # Fail on warnings (CI mode)
@@ -78,7 +81,7 @@ npx guardrails-ref setup --remove
 | [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 8 reference guardrails |
+| [Examples](examples/) | 10 reference guardrails |
 
 ## Example guardrails
 
@@ -92,17 +95,21 @@ npx guardrails-ref setup --remove
 | `no-sudo-commands` | `sudo`, `su`, or root-elevated commands without approval |
 | `rate-limiting` | Runaway API loops (e.g. Stripe test mode, max calls) |
 | `no-console-in-production` | console.log in production code |
+| `require-tests` | Merging code without tests |
+| `no-inline-styles` | Inline `style=` in HTML/JSX |
 
 ## Development (from source)
 
 If you clone the repo, build the CLI before running validate or list:
 
 ```bash
-cd guardrails-ref && npm install && npm run build
+cd guardrails-ref; npm install; npm run build
 cd ..
 npm run validate
 npm run test
 ```
+
+> **Windows (PowerShell):** Use `;` instead of `&&` to chain commands.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup.
 

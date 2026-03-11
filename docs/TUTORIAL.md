@@ -174,9 +174,11 @@ Once IDEs add native support, this step won't be needed.
 | **no-sudo-commands** | Running sudo/su/root commands without explicit approval |
 | **rate-limiting** | Making thousands of API calls in a loop (e.g. Stripe test mode only, max N calls) |
 | **no-console-in-production** | Adding console.log in production code |
+| **require-tests** | Merging code without tests |
+| **no-inline-styles** | Inline `style=` in HTML/JSX |
 
 Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example:
-`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`.
+`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`, `require-tests`, `no-inline-styles`.
 
 ---
 

@@ -28,7 +28,7 @@ jobs:
       - name: Validate examples
         run: |
           cd guardrails-ref
-          node dist/cli.js validate ../examples --strict
+          node dist/cli.js check ../examples --strict
 
       - name: Run tests
         run: |

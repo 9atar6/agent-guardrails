@@ -25,10 +25,11 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | Command | Description |
 |---------|-------------|
 | `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor and Claude Code |
-| `npx guardrails-ref add <name> [path]` | Add an example guardrail (e.g. no-destructive-commands, database-migrations) |
-| `npx guardrails-ref remove <name> [path]` | Remove a guardrail from .agents/guardrails/ |
+| `npx guardrails-ref add <name> [path]` | Add an example guardrail (name required, e.g. no-destructive-commands) |
+| `npx guardrails-ref remove <name> [path]` | Remove a guardrail (name required) |
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor rules and Claude instructions (use `--remove` to undo) |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
+| `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
 
 ## Supported IDEs
@@ -42,10 +43,10 @@ Use `validate --strict` in GitHub Actions to fail on warnings:
 
 ```yaml
 - name: Validate guardrails
-  run: npx guardrails-ref validate . --strict
+  run: npx guardrails-ref check . --strict
 ```
 
-Or with JSON for scripting:
+Or with full output or JSON:
 
 ```yaml
 - name: Validate guardrails
@@ -74,6 +75,8 @@ npx guardrails-ref list .
 | `no-sudo-commands` | sudo/su/root commands without approval |
 | `rate-limiting` | Runaway tool calls and API loops |
 | `no-console-in-production` | console.log in production code |
+| `require-tests` | Merging code without tests |
+| `no-inline-styles` | Inline `style=` in HTML/JSX |
 
 ## Troubleshooting
 

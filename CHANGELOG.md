@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-03-11
+
+### Added
+
+- **check command** — Validate with minimal output (CI-friendly alias)
+- **require-tests** — Never merge code without tests
+- **no-inline-styles** — No inline `style=` in HTML/JSX
+
+### Fixed
+
+- **CLI version** — Reads from package.json instead of hardcoded value
+
+### Changed
+
+- **Main README** — Windows/PowerShell note, `check` command, 10 examples
+
 ## [1.0.5] - 2026-03-11
 
 ### Added

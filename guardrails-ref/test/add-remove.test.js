@@ -54,6 +54,25 @@ test("runRemove: removes guardrail", () => {
   }
 });
 
+test("runAdd: adds require-tests and no-inline-styles", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-add-test-"));
+  const origLog = console.log;
+  console.log = () => {};
+  try {
+    for (const name of ["require-tests", "no-inline-styles"]) {
+      const added = runAdd(name, dir);
+      assert.strictEqual(added, true);
+      const path = join(dir, ".agents", "guardrails", name, "GUARDRAIL.md");
+      assert.ok(existsSync(path));
+      const content = readFileSync(path, "utf-8");
+      assert.ok(content.includes(`name: ${name}`));
+    }
+  } finally {
+    console.log = origLog;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("runAdd: adds no-hardcoded-urls and no-sudo-commands", () => {
   const dir = mkdtempSync(join(tmpdir(), "guardrails-add-test-"));
   const origLog = console.log;
