@@ -1,6 +1,6 @@
 {
   "name": "guardrails-ref",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, list",
   "type": "module",
   "main": "dist/validate.js",
@@ -8,7 +8,7 @@
     "guardrails-ref": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/copy-examples.js && tsc",
     "test": "npm run build && node --test test/*.test.js",
     "validate": "node dist/cli.js validate",
     "list": "node dist/cli.js list",
@@ -42,6 +42,7 @@
     "node": ">=18"
   },
   "files": [
-    "dist"
+    "dist",
+    "examples"
   ]
 }

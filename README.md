@@ -42,6 +42,8 @@ This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and
 ```bash
 npx guardrails-ref add no-destructive-commands
 npx guardrails-ref add no-new-deps-without-approval
+npx guardrails-ref add no-hardcoded-urls
+npx guardrails-ref add no-sudo-commands
 npx guardrails-ref add database-migrations
 npx guardrails-ref add rate-limiting
 npx guardrails-ref add no-console-in-production
@@ -53,6 +55,7 @@ npx guardrails-ref add no-console-in-production
 npx guardrails-ref validate .
 npx guardrails-ref list .
 npx guardrails-ref validate . --json   # JSON output for scripting
+npx guardrails-ref validate . --strict # Fail on warnings (CI mode)
 npx guardrails-ref list . --json      # JSON output for scripting
 ```
 
@@ -62,6 +65,12 @@ npx guardrails-ref list . --json      # JSON output for scripting
 npx guardrails-ref remove no-console-in-production
 ```
 
+### Undo setup
+
+```bash
+npx guardrails-ref setup --remove
+```
+
 ## Documentation
 
 | Resource | Description |
@@ -69,7 +78,7 @@ npx guardrails-ref remove no-console-in-production
 | [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 6 reference guardrails |
+| [Examples](examples/) | 8 reference guardrails |
 
 ## Example guardrails
 
@@ -79,6 +88,8 @@ npx guardrails-ref remove no-console-in-production
 | `database-migrations` | Direct schema changes instead of migrations |
 | `no-destructive-commands` | `rm -rf`, `DROP TABLE`, `TRUNCATE` without approval |
 | `no-new-deps-without-approval` | Adding packages without human confirmation |
+| `no-hardcoded-urls` | Hardcoded API URLs, base URLs, endpoints |
+| `no-sudo-commands` | `sudo`, `su`, or root-elevated commands without approval |
 | `rate-limiting` | Runaway API loops (e.g. Stripe test mode, max calls) |
 | `no-console-in-production` | console.log in production code |
 

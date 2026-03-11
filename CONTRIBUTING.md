@@ -6,11 +6,12 @@ Thank you for your interest in contributing. This document explains how to get s
 
 ### Add a new guardrail example
 
-1. Create a new directory under `examples/` with a descriptive name (e.g. `no-inline-styles`)
-2. Add a `GUARDRAIL.md` file following the [specification](spec/specification.md)
-3. Add the content to `guardrails-ref/src/templates.ts` so `npx guardrails-ref add <name>` works
-4. Run `npm run validate` and `npm run test` to ensure they pass
-5. Open a pull request
+1. Create `examples/<name>/GUARDRAIL.md` (e.g. `examples/no-inline-styles/GUARDRAIL.md`) following the [specification](spec/specification.md)
+2. Run `npm run build` in `guardrails-ref/` (copies examples into the package)
+3. Run `npm run validate` and `npm run test` to ensure they pass
+4. Open a pull request
+
+Templates load from `examples/` at runtime — no need to edit `templates.ts`.
 
 ### Improve the specification
 
@@ -45,12 +46,20 @@ npm run test       # Run automated tests
 
 ## Publishing (for maintainers)
 
-Before publishing to npm:
+**Pre-publish:** Update version in `guardrails-ref/package.json`, update CHANGELOG.md, run `cd guardrails-ref && npm run test`.
 
-1. Ensure `repository` / `bugs` / `homepage` in `guardrails-ref/package.json` point to the correct GitHub repo
-2. Create an [npm account](https://www.npmjs.com/signup) if needed
-3. Run `npm login` in a terminal
-4. Run `cd guardrails-ref && npm publish` (builds automatically via prepublishOnly)
+**Publish workflow:**
+
+```bash
+cd agent-guardrails
+cd guardrails-ref && npm run test && cd ..
+git add -A && git commit -m "chore: release vX.Y.Z" && git push origin main
+cd guardrails-ref && npm version patch && npm publish && cd ..
+```
+
+The build (run automatically by `prepublishOnly`) copies `../examples` into the package and compiles TypeScript. It fails if `../examples` is missing — run from the full repo.
+
+**Adding a guardrail:** Create `examples/<name>/GUARDRAIL.md`; no code changes needed. Build copies it into the package.
 
 ## GitHub topics (for discoverability)
 

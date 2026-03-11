@@ -9,7 +9,7 @@ const examplesDir = join(__dirname, "..", "..", "examples");
 
 test("validatePath: examples directory", () => {
   const result = validatePath(examplesDir);
-  assert.ok(result.total >= 6);
+  assert.ok(result.total >= 8);
   assert.strictEqual(result.invalid, 0);
   assert.strictEqual(result.valid, result.total);
 });
@@ -24,10 +24,12 @@ test("validatePath: single file", () => {
 
 test("listGuardrails: examples directory", () => {
   const guardrails = listGuardrails(examplesDir);
-  assert.ok(guardrails.length >= 6);
+  assert.ok(guardrails.length >= 8);
   const names = guardrails.map((g) => g.name);
   assert.ok(names.includes("no-plaintext-secrets"));
   assert.ok(names.includes("no-console-in-production"));
+  assert.ok(names.includes("no-hardcoded-urls"));
+  assert.ok(names.includes("no-sudo-commands"));
   guardrails.forEach((g) => {
     assert.ok(g.name);
     assert.ok(g.description);

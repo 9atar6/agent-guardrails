@@ -3,7 +3,7 @@
 import { program } from "commander";
 import chalk from "chalk";
 import { validatePath, listGuardrails } from "./validate.js";
-import { runSetup } from "./setup.js";
+import { runSetup, runSetupRemove } from "./setup.js";
 import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
 import { runRemove } from "./remove.js";
@@ -17,8 +17,10 @@ program
   .command("validate [path]")
   .description("Validate GUARDRAIL.md files in a directory or a single file")
   .option("-j, --json", "Output as JSON")
-  .action((path = ".", options: { json?: boolean }) => {
+  .option("-s, --strict", "Fail on warnings (CI mode)")
+  .action((path = ".", options: { json?: boolean; strict?: boolean } = {}) => {
     const result = validatePath(path);
+    const hasWarnings = result.results.some((r) => r.warnings.length > 0);
 
     if (options.json) {
       const json = {
@@ -33,7 +35,8 @@ program
         })),
       };
       console.log(JSON.stringify(json, null, 2));
-      process.exit(result.invalid > 0 ? 1 : 0);
+      const exitCode = result.invalid > 0 || (options.strict && hasWarnings) ? 1 : 0;
+      process.exit(exitCode);
       return;
     }
 
@@ -64,7 +67,8 @@ program
       console.log(`Valid: ${result.valid}/${result.total}  Invalid: ${result.invalid}/${result.total}`);
     }
 
-    process.exit(hasErrors ? 1 : 0);
+    const strictFail = options.strict && hasWarnings;
+    process.exit(hasErrors || strictFail ? 1 : 0);
   });
 
 program
@@ -76,7 +80,7 @@ program
 
 program
   .command("add <name> [path]")
-  .description("Add an example guardrail by name (e.g. no-destructive-commands, no-new-deps-without-approval)")
+  .description("Add an example guardrail by name (e.g. no-destructive-commands, no-hardcoded-urls, no-sudo-commands)")
   .action((name, path = ".") => {
     const ok = runAdd(name, path);
     process.exit(ok ? 0 : 1);
@@ -93,8 +97,11 @@ program
 program
   .command("setup [path]")
   .description("Add the guardrail one-liner to Cursor rules and Claude instructions (required until IDEs support guardrails natively)")
-  .action((path = ".") => {
-    const result = runSetup(path);
+  .option("-r, --remove", "Remove the guardrail rule from Cursor and Claude config")
+  .action((path: string | undefined, cmd?: { opts: () => { remove?: boolean } }) => {
+    const p = path ?? ".";
+    const opts = cmd?.opts?.() ?? {};
+    const result = opts.remove ? runSetupRemove(p) : runSetup(p);
     console.log(result.message);
   });
 
