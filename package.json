@@ -1,6 +1,6 @@
 {
   "name": "agent-guardrails",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "Agent Guardrails — a simple, open format for AI agent constraints",
   "license": "MIT",

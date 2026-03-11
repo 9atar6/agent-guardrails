@@ -8,9 +8,14 @@ Reference guardrails you can add with `npx guardrails-ref add <name>`. Use `npx 
 | `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
 | `no-silent-error-handling` | Catching errors without surfacing them to the user |
 | `require-access-control` | Exposing sensitive data or admin actions without role checks |
+| `artifact-verification` | Destructive ops without plan.md and audit log |
+| `context-rotation` | Continuing in polluted context; reset when 80% full or 10+ errors |
 | `database-migrations` | Direct schema changes instead of migrations |
 | `no-destructive-commands` | `rm -rf`, `DROP TABLE`, `TRUNCATE` without approval |
+| `no-eval-or-dynamic-code` | eval(), new Function(), or dynamic code execution |
 | `no-new-deps-without-approval` | New packages without human confirmation |
+| `privilege-boundaries` | Touching node_modules, .git, lockfiles, .env without approval |
+| `require-commit-approval` | git commit or push without explicit user approval |
 | `no-hardcoded-urls` | Hardcoded API URLs, base URLs, endpoints |
 | `no-sudo-commands` | `sudo`, `su`, or root commands without approval |
 | `rate-limiting` | Runaway tool calls and API loops |

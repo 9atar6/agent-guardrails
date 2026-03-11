@@ -101,7 +101,7 @@ See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
 | [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 20 reference guardrails |
+| [Examples](examples/) | 25 reference guardrails |
 
 ## Example guardrails
 

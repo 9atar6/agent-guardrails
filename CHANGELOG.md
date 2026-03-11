@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-03-11
+
+### Added
+
+- **artifact-verification** — Before destructive ops, generate plan.md for human review and log to audit trail (from [guardrails.md](https://guardrails.md/) Pattern 1)
+- **privilege-boundaries** — Define allowed/forbidden paths; never touch node_modules, .git, lockfiles, .env without approval (from [guardrails.md](https://guardrails.md/) Pattern 3)
+- **context-rotation** — When context exceeds 80% or 10+ errors, save state, summarize, reset to prevent "The Gutter" (from [guardrails.md](https://guardrails.md/) Pattern 2)
+- **require-commit-approval** — Never run git commit or push without explicit user approval
+- **no-eval-or-dynamic-code** — Never use eval(), new Function(), or dynamic code execution; prevents code injection
+
+### Changed
+
+- **no-plaintext-secrets** — Added "Audit all logs before committing" (from guardrails.md credential leak case study)
+
 ## [1.2.0] - 2026-03-11
 
 ### Added
