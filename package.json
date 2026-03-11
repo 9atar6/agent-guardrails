@@ -1,0 +1,18 @@
+{
+  "name": "agent-guardrails",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agent Guardrails — a simple, open format for AI agent constraints",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/9atar6/agent-guardrails.git"
+  },
+  "scripts": {
+    "validate": "node guardrails-ref/dist/cli.js validate .",
+    "list": "node guardrails-ref/dist/cli.js list .",
+    "setup": "node guardrails-ref/dist/cli.js setup .",
+    "init": "node guardrails-ref/dist/cli.js init .",
+    "build": "cd guardrails-ref && npm run build"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "guardrails-ref",
+  "version": "1.0.0",
+  "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, setup, add, validate",
+  "type": "module",
+  "main": "dist/validate.js",
+  "bin": {
+    "guardrails-ref": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "validate": "node dist/cli.js validate",
+    "list": "node dist/cli.js list",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "agent",
+    "guardrails",
+    "ai",
+    "cursor",
+    "claude"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/9atar6/agent-guardrails.git",
+    "directory": "guardrails-ref"
+  },
+  "bugs": "https://github.com/9atar6/agent-guardrails/issues",
+  "homepage": "https://github.com/9atar6/agent-guardrails#readme",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ]
+}
