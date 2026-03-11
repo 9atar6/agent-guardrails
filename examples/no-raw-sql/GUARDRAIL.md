@@ -30,3 +30,6 @@ Writing database queries, SQL statements, or any code that executes SQL against 
 
 ## Reason
 Raw SQL with string concatenation leads to SQL injection. Parameterized queries prevent injection and are required for security.
+
+## Provenance
+Manual addition, SQL injection prevention.

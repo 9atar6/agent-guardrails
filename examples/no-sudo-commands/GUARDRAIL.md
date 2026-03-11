@@ -32,3 +32,6 @@ Suggesting or running shell commands that require elevated privileges (sudo, su,
 
 ## Reason
 Agents have run sudo commands that overwrote system configs or installed conflicting packages. Elevated privileges require explicit human confirmation.
+
+## Provenance
+Manual addition, common failure mode in autonomous coding agents.

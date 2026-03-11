@@ -6,9 +6,10 @@ import { fileURLToPath } from "node:url";
 import { program } from "commander";
 import chalk from "chalk";
 import { validatePath, listGuardrails } from "./validate.js";
-import { runSetup, runSetupRemove } from "./setup.js";
+import { runSetup, runSetupRemove, runSetupCheck } from "./setup.js";
 import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
+import { runWhy } from "./why.js";
 import { runRemove } from "./remove.js";
 import { runUpgrade } from "./upgrade.js";
 import { TEMPLATE_NAMES } from "./templates.js";
@@ -101,25 +102,27 @@ program
   .description("Validate GUARDRAIL.md files in a directory or a single file")
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
-  .action((path = ".", cmd?: { opts: () => { json?: boolean; strict?: boolean } }) => {
-    const opts = cmd?.opts?.() ?? {};
-    runValidate(path, opts);
+  .action(function (this: { opts: () => { json?: boolean; strict?: boolean } }, path?: string) {
+    const opts = this.opts();
+    runValidate(path ?? ".", opts);
   });
 
 program
   .command("check [path]")
   .description("Validate guardrails with minimal output (CI-friendly alias)")
   .option("-s, --strict", "Fail on warnings")
-  .action((path = ".", cmd?: { opts: () => { strict?: boolean } }) => {
-    const opts = cmd?.opts?.() ?? {};
-    runValidate(path, { ...opts, minimal: true });
+  .action(function (this: { opts: () => { strict?: boolean } }, path?: string) {
+    const opts = this.opts();
+    runValidate(path ?? ".", { ...opts, minimal: true });
   });
 
 program
   .command("init [path]")
   .description("Create .agents/guardrails/, add no-plaintext-secrets, and run setup (one command to get started)")
-  .action((path = ".") => {
-    runInit(path);
+  .option("-m, --minimal", "Create .agents/guardrails/ only, no example and no setup")
+  .action(function (this: { opts: () => { minimal?: boolean } }, path?: string) {
+    const opts = this.opts();
+    runInit(path ?? ".", opts.minimal);
   });
 
 program
@@ -127,8 +130,8 @@ program
   .description("Add example guardrail(s) by name — pass multiple to add several at once")
   .option("-l, --list", "List available guardrails to add")
   .option("-p, --path <path>", "Target directory", ".")
-  .action((names: string[] = [], cmd?: { opts: () => { list?: boolean; path?: string } }) => {
-    const opts = cmd?.opts?.() ?? {};
+  .action(function (this: { opts: () => { list?: boolean; path?: string } }, names: string[] = []) {
+    const opts = this.opts();
     if (opts.list) {
       console.log("Available guardrails:");
       for (const n of TEMPLATE_NAMES) {
@@ -172,8 +175,8 @@ program
   .description("Update installed guardrails to latest template versions")
   .option("-n, --dry-run", "Show what would be updated without writing")
   .option("-d, --diff", "Show diff for each updated guardrail")
-  .action((path?: string, cmd?: { opts: () => { dryRun?: boolean; diff?: boolean } }) => {
-    const opts = cmd?.opts?.() ?? {};
+  .action(function (this: { opts: () => { dryRun?: boolean; diff?: boolean } }, path?: string) {
+    const opts = this.opts();
     runUpgrade(path ?? ".", opts.dryRun, opts.diff);
   });
 
@@ -187,22 +190,53 @@ program
 
 program
   .command("setup [path]")
-  .description("Add the guardrail one-liner to Cursor rules and Claude instructions (required until IDEs support guardrails natively)")
-  .option("-r, --remove", "Remove the guardrail rule from Cursor and Claude config")
-  .action((path: string | undefined, cmd?: { opts: () => { remove?: boolean } }) => {
+  .description("Add the guardrail rule to Cursor, Claude Code, and VS Code Copilot (required until IDEs support guardrails natively)")
+  .option("-r, --remove", "Remove the guardrail rule from IDE configs")
+  .option("-i, --ide <name>", "Target IDE: cursor, claude, copilot, or auto (only configured IDEs)")
+  .option("-n, --dry-run", "Show what would be added/removed without writing files")
+  .option("-c, --check", "Show which IDEs are configured and whether they have the rule")
+  .action(function (this: { opts: () => { remove?: boolean; ide?: string; dryRun?: boolean; check?: boolean } }, path?: string) {
     const p = path ?? ".";
-    const opts = cmd?.opts?.() ?? {};
-    const result = opts.remove ? runSetupRemove(p) : runSetup(p);
+    const opts = this.opts();
+    if (opts.check) {
+      const check = runSetupCheck(p);
+      const fmt = (name: string, r: { configured: boolean; hasRule: boolean }) => {
+        const status = !r.configured ? "not configured" : r.hasRule ? "has rule" : "no rule";
+        const color = !r.configured ? chalk.gray : r.hasRule ? chalk.green : chalk.yellow;
+        console.log(`  ${name.padEnd(12)} ${color(status)}`);
+      };
+      console.log("IDE setup status:");
+      fmt("Cursor", check.cursor);
+      fmt("Claude Code", check.claude);
+      fmt("VS Code Copilot", check.copilot);
+      return;
+    }
+    const ide = opts.ide as "cursor" | "claude" | "copilot" | "auto" | undefined;
+    if (ide && !["cursor", "claude", "copilot", "auto"].includes(ide)) {
+      console.error(chalk.red("Invalid --ide. Use: cursor, claude, copilot, or auto"));
+      process.exit(1);
+    }
+    const result = opts.remove
+      ? runSetupRemove(p, ide, opts.dryRun)
+      : runSetup(p, ide, opts.dryRun);
     console.log(result.message);
+  });
+
+program
+  .command("why <name>")
+  .description("Show guardrail content (e.g. npx guardrails-ref why no-destructive-commands)")
+  .action((name: string) => {
+    const ok = runWhy(name);
+    process.exit(ok ? 0 : 1);
   });
 
 program
   .command("list [path]")
   .description("List discovered guardrails")
   .option("-j, --json", "Output as JSON")
-  .action((path = ".", cmd?: { opts: () => { json?: boolean } }) => {
-    const opts = cmd?.opts?.() ?? {};
-    const guardrails = listGuardrails(path);
+  .action(function (this: { opts: () => { json?: boolean } }, path?: string) {
+    const opts = this.opts();
+    const guardrails = listGuardrails(path ?? ".");
 
     if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));

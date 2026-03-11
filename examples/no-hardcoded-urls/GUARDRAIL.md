@@ -30,3 +30,6 @@ Adding API calls, integrating external services, or referencing URLs (base URLs,
 
 ## Reason
 Hardcoded URLs break across environments (dev/staging/prod), leak internal endpoints, and block easy configuration. Environment-based config is standard practice.
+
+## Provenance
+Manual addition, agent-guardrails reference.

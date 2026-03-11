@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-03-11
+
+### Added
+
+- **no-silent-error-handling** — Never catch errors without surfacing them to the user
+- **no-placeholder-credentials** — Never use fake or placeholder API keys; ask for real values
+- **prefer-existing-code** — Prefer existing code and shared helpers over reimplementing
+- **require-access-control** — Enforce role or permission checks when handling sensitive data or admin actions
+- **no-modifying-git-history** — Never run `git push --force` or destructive rebase without explicit approval
+- **no-deprecated-apis** — Never suggest deprecated or obsolete APIs; check current docs
+- **no-unsafe-env-assumptions** — Validate required env vars at startup; fail fast with clear errors
+- **no-hardcoded-user-facing-strings** — Use i18n keys or shared constants for user-facing text
+- **VS Code Copilot support** — `setup` now adds the guardrail rule to `.github/copilot-instructions.md` (GitHub Copilot's project instructions file)
+- **setup --ide &lt;name&gt;** — Target a specific IDE: `cursor`, `claude`, `copilot`, or `auto` (e.g. `npx guardrails-ref setup --ide copilot`). Use `auto` to only configure IDEs that already have config files
+- **setup --check** — Show which IDEs are configured and whether they have the guardrail rule
+- **setup --dry-run** — Show what would be added/removed without writing files (e.g. `npx guardrails-ref setup --dry-run`)
+- **why &lt;name&gt;** — Show guardrail content (e.g. `npx guardrails-ref why no-destructive-commands`)
+- **init --minimal** — Create `.agents/guardrails/` only, no example and no setup (e.g. `npx guardrails-ref init --minimal`)
+
+### Changed
+
+- **setup** — Configures Cursor, Claude Code, and VS Code Copilot by default (previously only Cursor and Claude Code)
+- **Existing guardrails** — Added Provenance to 6 guardrails (no-hardcoded-urls, no-sudo-commands, require-tests, no-raw-sql, no-magic-numbers, no-inline-styles); fixed no-inline-styles Instruction/Reason separation
+
+### Fixed
+
+- **CLI options** — `validate --json`, `validate --strict`, `check --strict`, `list --json`, and `upgrade --dry-run`/`--diff` now correctly read options (Commander `this.opts()` fix)
+
 ## [1.1.0] - 2026-03-11
 
 ### Added

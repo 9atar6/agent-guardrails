@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node: >=18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
-CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, check, upgrade, and list GUARDRAIL.md files.
+CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, check, upgrade, list, and why GUARDRAIL.md files.
 
 ## Why?
 
@@ -16,7 +16,7 @@ AI coding agents (Cursor, Claude Code, etc.) don't remember across sessions. Gua
 npx guardrails-ref init
 ```
 
-Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor and Claude Code to read your guardrails. No global install needed.
+Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor, Claude Code, and VS Code Copilot to read your guardrails. No global install needed.
 
 > **Note:** IDEs don't yet recognize guardrails natively. The `setup` command adds a rule so the AI reads them. Once IDEs add support, this won't be needed.
 
@@ -24,19 +24,26 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 
 | Command | Description |
 |---------|-------------|
-| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor and Claude Code |
+| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor, Claude Code, and VS Code Copilot |
+| `npx guardrails-ref init --minimal [path]` | Create `.agents/guardrails/` only (no example, no setup) |
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail (name required) |
-| `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor rules and Claude instructions (use `--remove` to undo) |
+| `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor, Claude Code, and VS Code Copilot |
+| `npx guardrails-ref setup --remove [path]` | Remove the guardrail rule from IDE configs |
+| `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, or `auto` (only configured IDEs) |
+| `npx guardrails-ref setup --dry-run [path]` | Show what would be added/removed without writing files |
+| `npx guardrails-ref setup --check [path]` | Show which IDEs are configured and whether they have the rule |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
+| `npx guardrails-ref why <name>` | Show guardrail template content (e.g. `why no-destructive-commands`) |
 
 ## Supported IDEs
 
 - **Cursor** — via `.cursor/rules/` or `.cursorrules`
 - **Claude Code** — via `.claude/instructions.md`
+- **VS Code Copilot** — via `.github/copilot-instructions.md`
 
 ## CI/CD
 
@@ -62,6 +69,7 @@ Or with full output or JSON:
 npx guardrails-ref init
 npx guardrails-ref add no-destructive-commands no-hardcoded-urls
 npx guardrails-ref add no-new-deps-without-approval
+npx guardrails-ref why no-destructive-commands
 npx guardrails-ref validate .
 npx guardrails-ref list .
 ```
@@ -71,6 +79,9 @@ npx guardrails-ref list .
 | Name | What it prevents |
 |------|------------------|
 | `no-plaintext-secrets` | Logging or committing credentials |
+| `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
+| `no-silent-error-handling` | Catching errors without surfacing them to the user |
+| `require-access-control` | Exposing sensitive data or admin actions without role checks |
 | `database-migrations` | Direct schema changes instead of migrations |
 | `no-destructive-commands` | rm -rf, DROP TABLE, TRUNCATE without approval |
 | `no-new-deps-without-approval` | New packages without approval |
@@ -79,15 +90,20 @@ npx guardrails-ref list .
 | `rate-limiting` | Runaway tool calls and API loops |
 | `no-console-in-production` | console.log in production code |
 | `require-tests` | Merging code without tests |
+| `prefer-existing-code` | Reimplementing when existing code or helpers exist |
 | `no-inline-styles` | Inline `style=` in HTML/JSX |
 | `no-raw-sql` | Raw SQL without parameterization |
 | `no-magic-numbers` | Unexplained numeric literals |
+| `no-modifying-git-history` | git push --force, destructive rebase without approval |
+| `no-deprecated-apis` | Suggesting deprecated or obsolete APIs |
+| `no-unsafe-env-assumptions` | Assuming env vars exist without validation |
+| `no-hardcoded-user-facing-strings` | Hardcoded labels, messages, errors in UI |
 
-Use `npx guardrails-ref add --list` to see all available guardrails.
+Use `npx guardrails-ref add --list` to see all available guardrails. Use `npx guardrails-ref why <name>` to show a guardrail's full content (from templates).
 
 ## Troubleshooting
 
-- **"Unknown guardrail"** — Run `npx guardrails-ref list .` to see available names
+- **"Unknown guardrail"** — Run `npx guardrails-ref add --list` to see available guardrail names
 - **Setup not working** — Try `npx guardrails-ref setup --remove` then `npx guardrails-ref setup` again
 
 ## Links

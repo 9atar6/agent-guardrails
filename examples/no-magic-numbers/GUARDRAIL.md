@@ -29,3 +29,6 @@ Adding numeric literals for timeouts, limits, buffer sizes, retry counts, thresh
 
 ## Reason
 Magic numbers make code hard to understand and change. Named constants document intent and centralize configuration.
+
+## Provenance
+Manual addition, agent-guardrails reference.

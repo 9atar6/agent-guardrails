@@ -33,6 +33,10 @@ cd guardrails-ref; npm install; npm run build
 cd ..
 npm run validate   # Validate all examples
 npm run list       # List guardrails
+npm run add        # Add guardrails (e.g. npm run add -- no-destructive-commands)
+npm run remove     # Remove guardrails (e.g. npm run remove -- no-console-in-production)
+npm run upgrade    # Update to latest templates
+npm run why        # Show guardrail content (e.g. npm run why -- no-destructive-commands)
 npm run test       # Run automated tests
 ```
 

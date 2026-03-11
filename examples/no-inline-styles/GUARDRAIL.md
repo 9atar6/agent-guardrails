@@ -24,7 +24,9 @@ Adding styles to HTML, JSX, or component markup (e.g. React, Vue, Svelte).
 - Never add inline `style={{ ... }}` or `style="..."` attributes
 - Use CSS classes, CSS modules, Tailwind, or design system tokens instead
 - For dynamic values: use CSS variables or data attributes with stylesheets
-- Inline styles bypass design systems, hurt maintainability, and complicate theming
 
 ## Reason
-Inline styles scatter styling logic, prevent reuse, and make design consistency harder. Centralized styles (CSS, design tokens) enable theming and maintainability.
+Inline styles scatter styling logic, prevent reuse, and make design consistency harder. They bypass design systems, hurt maintainability, and complicate theming. Centralized styles (CSS, design tokens) enable theming and maintainability.
+
+## Provenance
+Manual addition, agent-guardrails reference.

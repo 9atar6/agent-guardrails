@@ -29,3 +29,6 @@ Adding features, fixing bugs, modifying production code paths, or refactoring ex
 
 ## Reason
 Untested code leads to regressions and makes refactoring risky. Tests document expected behavior and catch breakage before production.
+
+## Provenance
+Manual addition, agent-guardrails reference.

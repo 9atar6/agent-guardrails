@@ -10,7 +10,7 @@ export interface InitResult {
   setupDone: string;
 }
 
-export function runInit(projectPath: string = "."): InitResult {
+export function runInit(projectPath: string = ".", minimal = false): InitResult {
   const root = resolve(projectPath);
   const guardrailsDir = resolve(root, ".agents", "guardrails");
   const exampleDir = resolve(guardrailsDir, "no-plaintext-secrets");
@@ -21,6 +21,14 @@ export function runInit(projectPath: string = "."): InitResult {
   if (!existsSync(guardrailsDir)) {
     mkdirSync(guardrailsDir, { recursive: true });
     console.log(chalk.green("✓") + " Created .agents/guardrails/");
+  }
+
+  if (minimal) {
+    return {
+      guardrailsDir,
+      exampleCreated: false,
+      setupDone: "",
+    };
   }
 
   if (!existsSync(exampleFile)) {

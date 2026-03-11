@@ -96,6 +96,8 @@ npx guardrails-ref init
 
 This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and runs setup. Skip to Step 3 to validate.
 
+Use `npx guardrails-ref init --minimal` to create `.agents/guardrails/` only (no example, no setup).
+
 ### Option B: Manual
 
 ### Step 1: Create the folder
@@ -134,12 +136,13 @@ Secrets in logs or git lead to security incidents and key rotation.
 
 ### Step 3: Validate it
 
-From the `agent-guardrails` repo (or after installing the validator):
+From your project directory:
 
 ```bash
-npm run validate
-# or: npx guardrails-ref validate .
+npx guardrails-ref validate .
 ```
+
+(From the `agent-guardrails` repo: `npm run validate`.)
 
 You should see: `✓ .../no-plaintext-secrets/GUARDRAIL.md` and `Valid: 1/1`.
 
@@ -151,9 +154,11 @@ IDEs don't automatically load guardrails yet. Run this from your project directo
 npx guardrails-ref setup
 ```
 
-This adds the rule to Cursor (`.cursor/rules/`) and Claude Code (`.claude/instructions.md`) automatically. Without it, your guardrails won't work.
+This adds the rule to Cursor (`.cursor/rules/`), Claude Code (`.claude/instructions.md`), and VS Code Copilot (`.github/copilot-instructions.md`) automatically. Without it, your guardrails won't work.
 
-**Or copy-paste manually** into Cursor rules or `.claude/instructions.md`:
+Use `npx guardrails-ref setup --dry-run` to preview changes, or `npx guardrails-ref setup --ide auto` to only configure IDEs that already have config files.
+
+**Or copy-paste manually** into Cursor rules, `.claude/instructions.md`, or `.github/copilot-instructions.md`:
 ```
 You MUST read and follow all constraints in .agents/guardrails/. Never violate a guardrail without explicit human approval.
 ```
@@ -167,6 +172,9 @@ Once IDEs add native support, this step won't be needed.
 | Guardrail | What it prevents |
 |-----------|------------------|
 | **no-plaintext-secrets** | Logging or committing API keys, passwords |
+| **no-placeholder-credentials** | Fake or placeholder API keys instead of asking for real values |
+| **no-silent-error-handling** | Catching errors without surfacing them to the user |
+| **require-access-control** | Exposing sensitive data or admin actions without role checks |
 | **database-migrations** | Changing the database schema directly instead of using migrations |
 | **no-destructive-commands** | Running `rm -rf`, `DROP TABLE`, `TRUNCATE` without explicit approval |
 | **no-new-deps-without-approval** | Adding npm/pip packages without human confirmation |
@@ -175,11 +183,16 @@ Once IDEs add native support, this step won't be needed.
 | **rate-limiting** | Making thousands of API calls in a loop (e.g. Stripe test mode only, max N calls) |
 | **no-console-in-production** | Adding console.log in production code |
 | **require-tests** | Merging code without tests |
+| **prefer-existing-code** | Reimplementing when existing code or helpers exist |
 | **no-inline-styles** | Inline `style=` in HTML/JSX |
 | **no-raw-sql** | Raw SQL without parameterization |
 | **no-magic-numbers** | Unexplained numeric literals |
+| **no-modifying-git-history** | `git push --force`, destructive rebase without approval |
+| **no-deprecated-apis** | Suggesting deprecated or obsolete APIs |
+| **no-unsafe-env-assumptions** | Assuming env vars exist without validation |
+| **no-hardcoded-user-facing-strings** | Hardcoded labels, messages, errors in UI |
 
-Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example. Use `npx guardrails-ref add --list` to see all available.
+Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example. Use `npx guardrails-ref add --list` to see all available. Use `npx guardrails-ref why <name>` to show a guardrail's full content before adding.
 
 ---
 
@@ -222,7 +235,7 @@ Your project
 ## Next Steps
 
 1. Copy an example: `cp -r examples/no-plaintext-secrets .agents/guardrails/`
-2. Run `npx guardrails-ref setup` (adds the one-liner to Cursor and Claude Code)
+2. Run `npx guardrails-ref setup` (adds the one-liner to Cursor, Claude Code, and VS Code Copilot)
 3. Start a new chat and ask the AI to add logging — it should avoid logging secrets
 4. Add more guardrails as you discover patterns you want to prevent
 5. Remove a guardrail with `npx guardrails-ref remove <name>` if you no longer need it
