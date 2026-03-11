@@ -44,6 +44,7 @@ npx guardrails-ref add no-destructive-commands
 npx guardrails-ref add no-new-deps-without-approval
 npx guardrails-ref add database-migrations
 npx guardrails-ref add rate-limiting
+npx guardrails-ref add no-console-in-production
 ```
 
 ### Validate
@@ -60,7 +61,7 @@ npx guardrails-ref list .
 | [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 5 reference guardrails |
+| [Examples](examples/) | 6 reference guardrails |
 
 ## Example guardrails
 
@@ -71,6 +72,7 @@ npx guardrails-ref list .
 | `no-destructive-commands` | `rm -rf`, `DROP TABLE`, `TRUNCATE` without approval |
 | `no-new-deps-without-approval` | Adding packages without human confirmation |
 | `rate-limiting` | Runaway API loops (e.g. Stripe test mode, max calls) |
+| `no-console-in-production` | console.log in production code |
 
 ## Development (from source)
 

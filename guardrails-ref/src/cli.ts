@@ -6,6 +6,7 @@ import { validatePath, listGuardrails } from "./validate.js";
 import { runSetup } from "./setup.js";
 import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
+import { runRemove } from "./remove.js";
 
 program
   .name("guardrails-ref")
@@ -64,6 +65,14 @@ program
   });
 
 program
+  .command("remove <name> [path]")
+  .description("Remove a guardrail from .agents/guardrails/")
+  .action((name, path = ".") => {
+    const ok = runRemove(name, path);
+    process.exit(ok ? 0 : 1);
+  });
+
+program
   .command("setup [path]")
   .description("Add the guardrail one-liner to Cursor rules and Claude instructions (required until IDEs support guardrails natively)")
   .action((path = ".") => {
@@ -74,8 +83,14 @@ program
 program
   .command("list [path]")
   .description("List discovered guardrails")
-  .action((path = ".") => {
+  .option("-j, --json", "Output as JSON")
+  .action((path = ".", options: { json?: boolean }) => {
     const guardrails = listGuardrails(path);
+
+    if (options.json) {
+      console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));
+      return;
+    }
 
     if (guardrails.length === 0) {
       console.log(chalk.yellow("No guardrails found"));
