@@ -47,11 +47,19 @@ npx guardrails-ref add rate-limiting
 npx guardrails-ref add no-console-in-production
 ```
 
-### Validate
+### Validate and list
 
 ```bash
 npx guardrails-ref validate .
 npx guardrails-ref list .
+npx guardrails-ref validate . --json   # JSON output for scripting
+npx guardrails-ref list . --json      # JSON output for scripting
+```
+
+### Remove a guardrail
+
+```bash
+npx guardrails-ref remove no-console-in-production
 ```
 
 ## Documentation
@@ -82,6 +90,7 @@ If you clone the repo, build the CLI before running validate or list:
 cd guardrails-ref && npm install && npm run build
 cd ..
 npm run validate
+npm run test
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup.
@@ -91,7 +100,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup.
 ```
 agent-guardrails/
 ├── spec/                    # Specification and client guide
-├── guardrails-ref/          # CLI (validate, init, setup, add)
+├── guardrails-ref/          # CLI (init, add, remove, setup, validate, list)
 ├── examples/                # Reference guardrails
 ├── docs/                    # Tutorial
 └── LICENSE

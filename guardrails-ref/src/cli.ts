@@ -16,10 +16,28 @@ program
 program
   .command("validate [path]")
   .description("Validate GUARDRAIL.md files in a directory or a single file")
-  .action((path = ".") => {
+  .option("-j, --json", "Output as JSON")
+  .action((path = ".", options: { json?: boolean }) => {
     const result = validatePath(path);
-    let hasErrors = false;
 
+    if (options.json) {
+      const json = {
+        valid: result.valid,
+        invalid: result.invalid,
+        total: result.total,
+        results: result.results.map((r) => ({
+          path: r.path,
+          success: r.success,
+          errors: r.errors,
+          warnings: r.warnings,
+        })),
+      };
+      console.log(JSON.stringify(json, null, 2));
+      process.exit(result.invalid > 0 ? 1 : 0);
+      return;
+    }
+
+    let hasErrors = false;
     for (const r of result.results) {
       if (r.success) {
         const warnStr = r.warnings.length > 0 ? chalk.yellow(` (${r.warnings.length} warnings)`) : "";

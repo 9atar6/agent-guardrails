@@ -1,0 +1,36 @@
+name: Validate guardrails
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: guardrails-ref/package-lock.json
+
+      - name: Install and build
+        run: |
+          cd guardrails-ref
+          npm ci
+          npm run build
+
+      - name: Validate examples
+        run: |
+          cd guardrails-ref
+          node dist/cli.js validate ../examples
+
+      - name: Run tests
+        run: |
+          cd guardrails-ref
+          npm test

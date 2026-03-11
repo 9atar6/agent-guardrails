@@ -9,7 +9,7 @@ Thank you for your interest in contributing. This document explains how to get s
 1. Create a new directory under `examples/` with a descriptive name (e.g. `no-inline-styles`)
 2. Add a `GUARDRAIL.md` file following the [specification](spec/specification.md)
 3. Add the content to `guardrails-ref/src/templates.ts` so `npx guardrails-ref add <name>` works
-4. Run `npm run validate` to ensure it passes
+4. Run `npm run validate` and `npm run test` to ensure they pass
 5. Open a pull request
 
 ### Improve the specification
@@ -22,7 +22,7 @@ Thank you for your interest in contributing. This document explains how to get s
 
 1. Edit `guardrails-ref/src/` (cli.ts, validate.ts, etc.)
 2. Run `npm run build` in `guardrails-ref/`
-3. Run `npm run validate` to test
+3. Run `npm run validate` and `npm test` to test
 
 ## Development setup
 
@@ -32,6 +32,7 @@ cd guardrails-ref && npm install && npm run build
 cd ..
 npm run validate   # Validate all examples
 npm run list       # List guardrails
+npm run test       # Run automated tests
 ```
 
 ## Pull request process
@@ -39,7 +40,7 @@ npm run list       # List guardrails
 1. Fork the repository
 2. Create a branch from `main`
 3. Make your changes
-4. Ensure `npm run validate` passes
+4. Ensure `npm run validate` and `npm run test` pass
 5. Open a PR with a clear description
 
 ## Publishing (for maintainers)

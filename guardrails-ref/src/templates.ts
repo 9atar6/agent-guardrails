@@ -12,6 +12,10 @@ triggers:
   - "Implementing authentication"
   - "API integration"
   - "Handling credentials"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # No Plaintext Secrets
@@ -41,6 +45,10 @@ triggers:
   - "Database migrations"
   - "Prisma schema"
   - "SQL migrations"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # Database Migrations
@@ -72,6 +80,10 @@ triggers:
   - "rm -rf"
   - "DROP TABLE"
   - "TRUNCATE"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # No Destructive Commands
@@ -102,6 +114,10 @@ triggers:
   - "pip install"
   - "New library"
   - "Use package X"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # No New Dependencies Without Approval
@@ -130,6 +146,10 @@ triggers:
   - "Stripe or payment API calls"
   - "External API calls in loops"
   - "Context window approaching capacity"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # Rate Limiting
@@ -159,6 +179,10 @@ triggers:
   - "console.log"
   - "console.debug"
   - "Trace statements"
+license: MIT
+metadata:
+  author: agent-guardrails
+  version: "1.0"
 ---
 
 # No Console in Production

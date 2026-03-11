@@ -13,6 +13,7 @@
     "list": "node guardrails-ref/dist/cli.js list .",
     "setup": "node guardrails-ref/dist/cli.js setup .",
     "init": "node guardrails-ref/dist/cli.js init .",
-    "build": "cd guardrails-ref && npm run build"
+    "build": "cd guardrails-ref && npm run build",
+    "test": "cd guardrails-ref && npm test"
   }
 }

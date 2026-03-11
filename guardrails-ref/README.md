@@ -1,6 +1,6 @@
 # guardrails-ref
 
-CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — validate, init, setup, and add GUARDRAIL.md files.
+CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, and list GUARDRAIL.md files.
 
 ## Install
 
@@ -18,7 +18,7 @@ No global install needed. Or: `npm install -g guardrails-ref`
 | `npx guardrails-ref add <name> [path]` | Add an example guardrail (e.g. no-destructive-commands, database-migrations) |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail from .agents/guardrails/ |
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor rules and Claude instructions |
-| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files |
+| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON output) |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
 
 ## Examples

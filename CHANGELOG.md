@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-03-11
+
+### Added
+
+- **validate --json** — JSON output for scripting and CI
+- **Automated tests** — Parse, validate, add, remove (Node built-in test runner)
+- **GitHub Action** — Validate examples and run tests on push/PR
+
+### Fixed
+
+- **README** — Added remove command to project structure and docs
+- **Templates** — Synced license and metadata with examples (no drift)
+
 ## [1.0.2] - 2026-03-11
 
 ### Added

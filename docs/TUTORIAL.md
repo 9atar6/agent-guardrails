@@ -219,5 +219,6 @@ Your project
 2. Run `npx guardrails-ref setup` (adds the one-liner to Cursor and Claude Code)
 3. Start a new chat and ask the AI to add logging — it should avoid logging secrets
 4. Add more guardrails as you discover patterns you want to prevent
+5. Remove a guardrail with `npx guardrails-ref remove <name>` if you no longer need it
 
 Questions? See the [specification](../spec/specification.md) for the full format, or [examples](../examples/) for more guardrails.
