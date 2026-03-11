@@ -20,23 +20,31 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 
 > **Note:** IDEs don't yet recognize guardrails natively. The `setup` command adds a rule so the AI reads them. Once IDEs add support, this won't be needed.
 
+**User-level guardrails:** Use `--user` or path `~` to work with `~/.agents/guardrails/` (applies across all projects). Example: `npx guardrails-ref init --user`.
+
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor, Claude Code, and VS Code Copilot |
 | `npx guardrails-ref init --minimal [path]` | Create `.agents/guardrails/` only (no example, no setup) |
+| `npx guardrails-ref init --user` | Create `~/.agents/guardrails/` (user-level; setup is project-specific) |
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
-| `npx guardrails-ref remove <name> [path]` | Remove a guardrail (name required) |
+| `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
+| `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
+| `npx guardrails-ref remove <name> --user` or `remove <name> ~` | Remove from user-level |
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor, Claude Code, and VS Code Copilot |
 | `npx guardrails-ref setup --remove [path]` | Remove the guardrail rule from IDE configs |
 | `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, or `auto` (only configured IDEs) |
 | `npx guardrails-ref setup --dry-run [path]` | Show what would be added/removed without writing files |
 | `npx guardrails-ref setup --check [path]` | Show which IDEs are configured and whether they have the rule |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
+| `npx guardrails-ref validate --user` or `validate ~` | Validate user-level guardrails |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |
+| `npx guardrails-ref upgrade --user` or `upgrade ~` | Upgrade user-level guardrails |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
+| `npx guardrails-ref list --user` or `list ~` | List user-level guardrails |
 | `npx guardrails-ref why <name>` | Show guardrail template content (e.g. `why no-destructive-commands`) |
 
 ## Supported IDEs
@@ -66,12 +74,19 @@ Or with full output or JSON:
 ## Examples
 
 ```bash
+# Project-level (default)
 npx guardrails-ref init
 npx guardrails-ref add no-destructive-commands no-hardcoded-urls
 npx guardrails-ref add no-new-deps-without-approval
 npx guardrails-ref why no-destructive-commands
 npx guardrails-ref validate .
 npx guardrails-ref list .
+
+# User-level (~/.agents/guardrails/)
+npx guardrails-ref init --user
+npx guardrails-ref add no-plaintext-secrets --user
+npx guardrails-ref list --user
+npx guardrails-ref validate ~
 ```
 
 ## Available guardrails (add command)
@@ -82,9 +97,14 @@ npx guardrails-ref list .
 | `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
 | `no-silent-error-handling` | Catching errors without surfacing them to the user |
 | `require-access-control` | Exposing sensitive data or admin actions without role checks |
+| `artifact-verification` | Destructive ops without plan.md and audit log |
+| `context-rotation` | Continuing in polluted context; reset when 80% full or 10+ errors |
 | `database-migrations` | Direct schema changes instead of migrations |
 | `no-destructive-commands` | rm -rf, DROP TABLE, TRUNCATE without approval |
+| `no-eval-or-dynamic-code` | eval(), new Function(), or dynamic code execution |
 | `no-new-deps-without-approval` | New packages without approval |
+| `privilege-boundaries` | Touching node_modules, .git, lockfiles, .env without approval |
+| `require-commit-approval` | git commit or push without explicit user approval |
 | `no-hardcoded-urls` | Hardcoded API URLs, base URLs, endpoints |
 | `no-sudo-commands` | sudo/su/root commands without approval |
 | `rate-limiting` | Runaway tool calls and API loops |

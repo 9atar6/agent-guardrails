@@ -37,6 +37,8 @@ This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and
 
 Use `npx guardrails-ref init --minimal` to create `.agents/guardrails/` only (no example, no setup).
 
+Use `npx guardrails-ref init --user` to create `~/.agents/guardrails/` (user-level; setup is project-specific).
+
 > **Note:** IDEs don't yet recognize guardrails natively. The `init` and `setup` commands add a rule so the AI reads your guardrails. Once IDEs add support, this won't be needed.
 
 ### Add more guardrails
@@ -47,6 +49,17 @@ Add one or several at once:
 npx guardrails-ref add no-destructive-commands no-new-deps-without-approval no-hardcoded-urls
 npx guardrails-ref add no-sudo-commands require-tests no-inline-styles
 npx guardrails-ref add no-raw-sql no-magic-numbers database-migrations rate-limiting no-console-in-production
+```
+
+### User-level guardrails
+
+Guardrails can live in `~/.agents/guardrails/` (user-level) or `.agents/guardrails/` (project-level). Use `--user` or path `~`:
+
+```bash
+npx guardrails-ref init --user
+npx guardrails-ref add no-plaintext-secrets --user
+npx guardrails-ref list --user
+npx guardrails-ref validate ~
 ```
 
 ### Validate and list
@@ -111,9 +124,14 @@ See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
 | `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
 | `no-silent-error-handling` | Catching errors without surfacing them to the user |
 | `require-access-control` | Exposing sensitive data or admin actions without role checks |
+| `artifact-verification` | Destructive ops without plan.md and audit log |
+| `context-rotation` | Continuing in polluted context; reset when 80% full or 10+ errors |
 | `database-migrations` | Direct schema changes instead of migrations |
 | `no-destructive-commands` | `rm -rf`, `DROP TABLE`, `TRUNCATE` without approval |
+| `no-eval-or-dynamic-code` | `eval()`, `new Function()`, or dynamic code execution |
 | `no-new-deps-without-approval` | Adding packages without human confirmation |
+| `privilege-boundaries` | Touching node_modules, .git, lockfiles, .env without approval |
+| `require-commit-approval` | git commit or push without explicit user approval |
 | `no-hardcoded-urls` | Hardcoded API URLs, base URLs, endpoints |
 | `no-sudo-commands` | `sudo`, `su`, or root-elevated commands without approval |
 | `rate-limiting` | Runaway API loops (e.g. Stripe test mode, max calls) |

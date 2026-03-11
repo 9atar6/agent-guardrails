@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { resolve } from "path";
+import { join } from "path";
 import chalk from "chalk";
+import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATES, TEMPLATE_NAMES } from "./templates.js";
 
-export function runAdd(name: string, projectPath: string = "."): boolean {
+export function runAdd(name: string, projectPath: string = ".", userScope = false): boolean {
   const normalized = name.toLowerCase().replace(/\s+/g, "-");
   const content = TEMPLATES[normalized];
 
@@ -13,23 +14,23 @@ export function runAdd(name: string, projectPath: string = "."): boolean {
     return false;
   }
 
-  const root = resolve(projectPath);
-  const guardrailsDir = resolve(root, ".agents", "guardrails");
-  const exampleDir = resolve(guardrailsDir, normalized);
-  const exampleFile = resolve(exampleDir, "GUARDRAIL.md");
+  const guardrailsDir = resolveGuardrailsDir(projectPath, userScope);
+  const exampleDir = join(guardrailsDir, normalized);
+  const exampleFile = join(exampleDir, "GUARDRAIL.md");
 
+  const pathLabel = userScope ? "~/.agents/guardrails/" : ".agents/guardrails/";
   if (existsSync(exampleFile)) {
-    console.log(chalk.yellow(".agents/guardrails/" + normalized + "/GUARDRAIL.md already exists"));
+    console.log(chalk.yellow(pathLabel + normalized + "/GUARDRAIL.md already exists"));
     return true;
   }
 
   if (!existsSync(guardrailsDir)) {
     mkdirSync(guardrailsDir, { recursive: true });
-    console.log(chalk.green("✓") + " Created .agents/guardrails/");
+    console.log(chalk.green("✓") + " Created " + pathLabel);
   }
 
   mkdirSync(exampleDir, { recursive: true });
   writeFileSync(exampleFile, content);
-  console.log(chalk.green("✓") + " Added .agents/guardrails/" + normalized + "/GUARDRAIL.md");
+  console.log(chalk.green("✓") + " Added " + pathLabel + normalized + "/GUARDRAIL.md");
   return true;
 }

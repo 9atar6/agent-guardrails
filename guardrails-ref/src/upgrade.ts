@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
+import { join } from "path";
 import chalk from "chalk";
 import { createPatch } from "diff";
+import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATES } from "./templates.js";
 
 export interface UpgradeResult {
@@ -29,14 +30,15 @@ function printDiff(name: string, current: string, template: string): void {
 export function runUpgrade(
   projectPath: string = ".",
   dryRun = false,
-  showDiff = false
+  showDiff = false,
+  userScope = false
 ): UpgradeResult {
-  const root = resolve(projectPath);
-  const guardrailsDir = resolve(root, ".agents", "guardrails");
+  const guardrailsDir = resolveGuardrailsDir(projectPath, userScope);
   const result: UpgradeResult = { updated: [], skipped: [], notFound: [] };
 
+  const pathLabel = userScope ? "~/.agents/guardrails/" : ".agents/guardrails/";
   if (!existsSync(guardrailsDir)) {
-    console.log(chalk.yellow("No .agents/guardrails/ directory found"));
+    console.log(chalk.yellow("No " + pathLabel + " directory found"));
     return result;
   }
 
@@ -45,7 +47,7 @@ export function runUpgrade(
     if (!ent.isDirectory()) continue;
     const name = ent.name.toLowerCase().replace(/\s+/g, "-");
     const template = TEMPLATES[name];
-    const filePath = resolve(guardrailsDir, ent.name, "GUARDRAIL.md");
+    const filePath = join(guardrailsDir, ent.name, "GUARDRAIL.md");
 
     if (!existsSync(filePath)) continue;
     if (!template) {
@@ -65,9 +67,9 @@ export function runUpgrade(
         printDiff(name, current, template);
       }
       writeFileSync(filePath, template);
-      console.log(chalk.green("✓") + " Updated .agents/guardrails/" + name + "/GUARDRAIL.md");
+      console.log(chalk.green("✓") + " Updated " + pathLabel + name + "/GUARDRAIL.md");
     } else {
-      console.log(chalk.cyan("Would update") + " .agents/guardrails/" + name + "/GUARDRAIL.md");
+      console.log(chalk.cyan("Would update") + " " + pathLabel + name + "/GUARDRAIL.md");
       if (showDiff) {
         printDiff(name, current, template);
       }

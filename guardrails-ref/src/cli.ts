@@ -12,6 +12,7 @@ import { runAdd } from "./add.js";
 import { runWhy } from "./why.js";
 import { runRemove } from "./remove.js";
 import { runUpgrade } from "./upgrade.js";
+import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATE_NAMES } from "./templates.js";
 
 const require = createRequire(import.meta.url);
@@ -25,9 +26,11 @@ program
 
 function runValidate(
   path: string,
-  options: { json?: boolean; strict?: boolean; minimal?: boolean }
+  options: { json?: boolean; strict?: boolean; minimal?: boolean; user?: boolean }
 ): void {
-  const result = validatePath(path);
+  const userScope = options.user ?? path === "~";
+  const pathToScan = userScope ? resolveGuardrailsDir("~", true) : path;
+  const result = validatePath(pathToScan);
   const hasWarnings = result.results.some((r) => r.warnings.length > 0);
   const hasErrors = result.invalid > 0;
   const strictFail = options.strict && hasWarnings;
@@ -102,7 +105,8 @@ program
   .description("Validate GUARDRAIL.md files in a directory or a single file")
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
-  .action(function (this: { opts: () => { json?: boolean; strict?: boolean } }, path?: string) {
+  .option("-u, --user", "Use user-level guardrails (~/.agents/guardrails/)")
+  .action(function (this: { opts: () => { json?: boolean; strict?: boolean; user?: boolean } }, path?: string) {
     const opts = this.opts();
     runValidate(path ?? ".", opts);
   });
@@ -120,9 +124,10 @@ program
   .command("init [path]")
   .description("Create .agents/guardrails/, add no-plaintext-secrets, and run setup (one command to get started)")
   .option("-m, --minimal", "Create .agents/guardrails/ only, no example and no setup")
-  .action(function (this: { opts: () => { minimal?: boolean } }, path?: string) {
+  .option("-u, --user", "Create ~/.agents/guardrails/ (user-level); setup is project-specific")
+  .action(function (this: { opts: () => { minimal?: boolean; user?: boolean } }, path?: string) {
     const opts = this.opts();
-    runInit(path ?? ".", opts.minimal);
+    runInit(path ?? ".", opts.minimal, opts.user);
   });
 
 program
@@ -130,7 +135,8 @@ program
   .description("Add example guardrail(s) by name — pass multiple to add several at once")
   .option("-l, --list", "List available guardrails to add")
   .option("-p, --path <path>", "Target directory", ".")
-  .action(function (this: { opts: () => { list?: boolean; path?: string } }, names: string[] = []) {
+  .option("-u, --user", "Add to user-level ~/.agents/guardrails/")
+  .action(function (this: { opts: () => { list?: boolean; path?: string; user?: boolean } }, names: string[] = []) {
     const opts = this.opts();
     if (opts.list) {
       console.log("Available guardrails:");
@@ -145,7 +151,7 @@ program
     let targetPath = opts.path ?? ".";
     const args = names.filter((n) => n != null && String(n).trim());
     const looksLikePath = (s: string) =>
-      s === "." || s === ".." || s.includes("/") || s.includes("\\");
+      s === "." || s === ".." || s === "~" || s.includes("/") || s.includes("\\");
     if (args.length >= 1 && looksLikePath(args[args.length - 1])) {
       if (args.length === 1) {
         console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
@@ -162,10 +168,12 @@ program
       process.exit(1);
       return;
     }
+    const userScope = opts.user ?? targetPath === "~";
+    const addPath = userScope ? "~" : targetPath;
     let failed = 0;
     for (const name of args) {
       if (!name.trim()) continue;
-      if (!runAdd(name, targetPath)) failed++;
+      if (!runAdd(name, addPath, userScope)) failed++;
     }
     process.exit(failed > 0 ? 1 : 0);
   });
@@ -175,16 +183,23 @@ program
   .description("Update installed guardrails to latest template versions")
   .option("-n, --dry-run", "Show what would be updated without writing")
   .option("-d, --diff", "Show diff for each updated guardrail")
-  .action(function (this: { opts: () => { dryRun?: boolean; diff?: boolean } }, path?: string) {
+  .option("-u, --user", "Upgrade user-level ~/.agents/guardrails/")
+  .action(function (this: { opts: () => { dryRun?: boolean; diff?: boolean; user?: boolean } }, path?: string) {
     const opts = this.opts();
-    runUpgrade(path ?? ".", opts.dryRun, opts.diff);
+    const p = path ?? ".";
+    const userScope = opts.user ?? p === "~";
+    runUpgrade(userScope ? "~" : p, opts.dryRun, opts.diff, userScope);
   });
 
 program
   .command("remove <name> [path]")
   .description("Remove a guardrail from .agents/guardrails/")
-  .action((name, path = ".") => {
-    const ok = runRemove(name, path);
+  .option("-u, --user", "Remove from user-level ~/.agents/guardrails/")
+  .action(function (this: { opts: () => { user?: boolean } }, name: string, path?: string) {
+    const opts = this.opts();
+    const p = path ?? ".";
+    const userScope = opts.user ?? p === "~";
+    const ok = runRemove(name, userScope ? "~" : p, userScope);
     process.exit(ok ? 0 : 1);
   });
 
@@ -234,9 +249,12 @@ program
   .command("list [path]")
   .description("List discovered guardrails")
   .option("-j, --json", "Output as JSON")
-  .action(function (this: { opts: () => { json?: boolean } }, path?: string) {
+  .option("-u, --user", "List user-level ~/.agents/guardrails/")
+  .action(function (this: { opts: () => { json?: boolean; user?: boolean } }, path?: string) {
     const opts = this.opts();
-    const guardrails = listGuardrails(path ?? ".");
+    const userScope = opts.user ?? path === "~";
+    const pathToScan = userScope ? resolveGuardrailsDir("~", true) : (path ?? ".");
+    const guardrails = listGuardrails(pathToScan);
 
     if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-03-11
+
+### Added
+
+- **User-level guardrails** — CLI now supports `~/.agents/guardrails/` per spec:
+  - `init --user` — Create user-level dir and add no-plaintext-secrets (setup is project-specific)
+  - `add <name> --user` or `add <name> ~` — Add to user scope
+  - `remove <name> --user` or `remove <name> ~` — Remove from user scope
+  - `upgrade --user` or `upgrade ~` — Upgrade user-level guardrails
+  - `list --user` or `list ~` — List user-level guardrails
+  - `validate --user` or `validate ~` — Validate user-level guardrails
+
 ## [1.2.1] - 2026-03-11
 
 ### Added

@@ -39,6 +39,7 @@ Implementing authentication endpoints, adding logging, integrating third-party A
 - Use bcrypt with 12 salt rounds for password hashing
 - Always require HTTPS for authentication endpoints
 - Use a \`redactSensitive()\` helper when logging objects that may contain secrets
+- Audit all logs before committing to ensure no credentials are included
 
 ## Reason
 API keys were exposed in git during a 2025 security audit. Plaintext credentials in logs led to emergency key rotation.
