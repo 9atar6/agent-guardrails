@@ -7,18 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-03-11
+
 ### Added
 
 - **Templates from disk** — Load guardrails from `examples/` at runtime; single source of truth, no duplication with `templates.ts`
+- **validate --strict** — Fail on warnings (CI mode)
+- **setup --remove** — Undo setup (remove rule from Cursor/Claude config)
+- **no-hardcoded-urls** — Never hardcode API URLs, base URLs, endpoints
+- **no-sudo-commands** — No sudo/su/root commands without explicit approval
 
 ### Changed
 
 - **copy-examples** — Fails with exit 1 if `../examples` is missing (prevents publishing without examples)
 - **Template loading** — Validates guardrails with parser; skips invalid files and warns to stderr
-- **validate --strict** — Fail on warnings (CI mode)
-- **setup --remove** — Undo setup (remove rule from Cursor/Claude config)
-- **no-hardcoded-urls** — Never hardcode API URLs, base URLs, endpoints
-- **no-sudo-commands** — No sudo/su/root commands without explicit approval
+- **guardrails-ref README** — Badges, quick start, CI examples, troubleshooting, supported IDEs
 
 ## [1.0.3] - 2026-03-11
 

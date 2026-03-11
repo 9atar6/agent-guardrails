@@ -170,10 +170,13 @@ Once IDEs add native support, this step won't be needed.
 | **database-migrations** | Changing the database schema directly instead of using migrations |
 | **no-destructive-commands** | Running `rm -rf`, `DROP TABLE`, `TRUNCATE` without explicit approval |
 | **no-new-deps-without-approval** | Adding npm/pip packages without human confirmation |
+| **no-hardcoded-urls** | Hardcoding API URLs, base URLs, endpoints |
+| **no-sudo-commands** | Running sudo/su/root commands without explicit approval |
 | **rate-limiting** | Making thousands of API calls in a loop (e.g. Stripe test mode only, max N calls) |
+| **no-console-in-production** | Adding console.log in production code |
 
 Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example:
-`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `rate-limiting`.
+`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`.
 
 ---
 

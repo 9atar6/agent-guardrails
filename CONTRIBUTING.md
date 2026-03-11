@@ -29,12 +29,14 @@ Templates load from `examples/` at runtime — no need to edit `templates.ts`.
 
 ```bash
 cd agent-guardrails
-cd guardrails-ref && npm install && npm run build
+cd guardrails-ref; npm install; npm run build
 cd ..
 npm run validate   # Validate all examples
 npm run list       # List guardrails
 npm run test       # Run automated tests
 ```
+
+> **Windows (PowerShell):** Use `;` instead of `&&` to chain commands. Example: `cd guardrails-ref; npm run test; cd ..`
 
 ## Pull request process
 
