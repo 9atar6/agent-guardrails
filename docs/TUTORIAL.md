@@ -176,9 +176,11 @@ Once IDEs add native support, this step won't be needed.
 | **no-console-in-production** | Adding console.log in production code |
 | **require-tests** | Merging code without tests |
 | **no-inline-styles** | Inline `style=` in HTML/JSX |
+| **no-raw-sql** | Raw SQL without parameterization |
+| **no-magic-numbers** | Unexplained numeric literals |
 
-Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example:
-`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`, `require-tests`, `no-inline-styles`.
+Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example. Use `npx guardrails-ref add --list` to see all available.
+`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`, `require-tests`, `no-inline-styles`, `no-raw-sql`, `no-magic-numbers`.
 
 ---
 

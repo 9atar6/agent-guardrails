@@ -14,5 +14,7 @@ Reference guardrails you can add with `npx guardrails-ref add <name>`.
 | `no-console-in-production` | `console.log` in production code |
 | `require-tests` | Merging code without tests |
 | `no-inline-styles` | Inline `style=` in HTML/JSX |
+| `no-raw-sql` | Raw SQL without parameterization |
+| `no-magic-numbers` | Unexplained numeric literals |
 
-Each example lives in its own directory with a `GUARDRAIL.md` file. See the [specification](../spec/specification.md) for the format.
+Each example lives in its own directory with a `GUARDRAIL.md` file. See `pre-commit/README.md` for pre-commit, Husky, or npm script setup. See the [specification](../spec/specification.md) for the format.

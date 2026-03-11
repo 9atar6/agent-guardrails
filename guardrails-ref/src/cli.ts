@@ -10,6 +10,8 @@ import { runSetup, runSetupRemove } from "./setup.js";
 import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
 import { runRemove } from "./remove.js";
+import { runUpgrade } from "./upgrade.js";
+import { TEMPLATE_NAMES } from "./templates.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -119,11 +121,36 @@ program
   });
 
 program
-  .command("add <name> [path]")
-  .description("Add an example guardrail by name (e.g. no-destructive-commands, no-hardcoded-urls, no-sudo-commands)")
-  .action((name, path = ".") => {
-    const ok = runAdd(name, path);
+  .command("add [name] [path]")
+  .description("Add an example guardrail by name (use --list to see available)")
+  .option("-l, --list", "List available guardrails to add")
+  .action((name: string | undefined, path?: string, cmd?: { opts: () => { list?: boolean } }) => {
+    const opts = cmd?.opts?.() ?? {};
+    if (opts.list) {
+      console.log("Available guardrails:");
+      for (const n of TEMPLATE_NAMES) {
+        console.log("  " + n);
+      }
+      console.log("\nUsage: npx guardrails-ref add <name> [path]");
+      return;
+    }
+    if (!name || !name.trim()) {
+      console.log("Usage: npx guardrails-ref add <name> [path]");
+      console.log("Use --list to see available guardrails");
+      process.exit(1);
+      return;
+    }
+    const ok = runAdd(name, path ?? ".");
     process.exit(ok ? 0 : 1);
+  });
+
+program
+  .command("upgrade [path]")
+  .description("Update installed guardrails to latest template versions")
+  .option("-n, --dry-run", "Show what would be updated without writing")
+  .action((path?: string, cmd?: { opts: () => { dryRun?: boolean } }) => {
+    const opts = cmd?.opts?.() ?? {};
+    runUpgrade(path ?? ".", opts.dryRun);
   });
 
 program

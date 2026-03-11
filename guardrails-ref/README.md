@@ -30,6 +30,7 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor rules and Claude instructions (use `--remove` to undo) |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
+| `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview) |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
 
 ## Supported IDEs
@@ -77,6 +78,10 @@ npx guardrails-ref list .
 | `no-console-in-production` | console.log in production code |
 | `require-tests` | Merging code without tests |
 | `no-inline-styles` | Inline `style=` in HTML/JSX |
+| `no-raw-sql` | Raw SQL without parameterization |
+| `no-magic-numbers` | Unexplained numeric literals |
+
+Use `npx guardrails-ref add --list` to see all available guardrails.
 
 ## Troubleshooting
 

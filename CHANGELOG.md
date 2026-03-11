@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-03-11
+
+### Added
+
+- **add --list** — List available guardrails to add (e.g. `npx guardrails-ref add --list`)
+- **upgrade command** — Update installed guardrails to latest template versions (use `--dry-run` to preview)
+- **no-raw-sql** — Never use raw SQL with string concatenation; use parameterized queries
+- **no-magic-numbers** — No unexplained numeric literals; use named constants
+- **Pre-commit example** — `examples/pre-commit/README.md` with pre-commit, Husky, and npm script options
+
 ## [1.0.6] - 2026-03-11
 
 ### Added
@@ -38,6 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **copy-examples** — Fails with exit 1 if `../examples` is missing (prevents publishing without examples)
 - **Template loading** — Validates guardrails with parser; skips invalid files and warns to stderr
 - **guardrails-ref README** — Badges, quick start, CI examples, troubleshooting, supported IDEs
+
+## [1.0.4] - 2026-03-11
+
+### Fixed
+
+- **npm README** — Added README.md to package files so npm displays it (was showing "This package does not have a README")
 
 ## [1.0.3] - 2026-03-11
 

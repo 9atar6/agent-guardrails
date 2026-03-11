@@ -46,6 +46,8 @@ npx guardrails-ref add no-hardcoded-urls
 npx guardrails-ref add no-sudo-commands
 npx guardrails-ref add require-tests
 npx guardrails-ref add no-inline-styles
+npx guardrails-ref add no-raw-sql
+npx guardrails-ref add no-magic-numbers
 npx guardrails-ref add database-migrations
 npx guardrails-ref add rate-limiting
 npx guardrails-ref add no-console-in-production
@@ -74,6 +76,17 @@ npx guardrails-ref remove no-console-in-production
 npx guardrails-ref setup --remove
 ```
 
+### Upgrade guardrails
+
+```bash
+npx guardrails-ref upgrade          # Update to latest templates
+npx guardrails-ref upgrade --dry-run  # Preview changes
+```
+
+### Pre-commit
+
+See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
+
 ## Documentation
 
 | Resource | Description |
@@ -81,7 +94,7 @@ npx guardrails-ref setup --remove
 | [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 10 reference guardrails |
+| [Examples](examples/) | 12 reference guardrails |
 
 ## Example guardrails
 
@@ -97,6 +110,8 @@ npx guardrails-ref setup --remove
 | `no-console-in-production` | console.log in production code |
 | `require-tests` | Merging code without tests |
 | `no-inline-styles` | Inline `style=` in HTML/JSX |
+| `no-raw-sql` | Raw SQL without parameterization |
+| `no-magic-numbers` | Unexplained numeric literals |
 
 ## Development (from source)
 
