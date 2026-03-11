@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-03-11
+
+### Changed
+
+- Version bump for npm sync
+- **CONTRIBUTING.md** — Publish workflow: sync root package.json and CHANGELOG; use `npm version 1.2.X` for specific versions
+- **Root package.json** — Build and test scripts use `--prefix guardrails-ref` (Windows-friendly, no `&&`)
+
 ## [1.2.2] - 2026-03-11
 
 ### Added

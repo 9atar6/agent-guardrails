@@ -52,16 +52,18 @@ npm run test       # Run automated tests
 
 ## Publishing (for maintainers)
 
-**Pre-publish:** Update version in `guardrails-ref/package.json`, update CHANGELOG.md, run `cd guardrails-ref && npm run test`.
+**Pre-publish:** Update version in `guardrails-ref/package.json`, sync root `package.json` to the same version, update CHANGELOG.md, then run `npm run test` from the repo root.
 
 **Publish workflow:**
 
 ```bash
 cd agent-guardrails
-cd guardrails-ref && npm run test && cd ..
+npm run test
 git add -A && git commit -m "chore: release vX.Y.Z" && git push origin main
 cd guardrails-ref && npm version patch && npm publish && cd ..
 ```
+
+After `npm version patch`, sync root `package.json` and CHANGELOG to the new version, then push. Or use `npm version 1.2.X` for a specific version and update both package.json files and CHANGELOG before publishing.
 
 The build (run automatically by `prepublishOnly`) copies `../examples` into the package and compiles TypeScript. It fails if `../examples` is missing — run from the full repo.
 
