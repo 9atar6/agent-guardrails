@@ -45,3 +45,23 @@ test("runUpgrade: dry-run does not write", () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("runUpgrade: --diff shows patch output", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-upgrade-diff-"));
+  const logs = [];
+  const origLog = console.log;
+  console.log = (...args) => logs.push(args.join(" "));
+  try {
+    runAdd("no-plaintext-secrets", dir);
+    const path = join(dir, ".agents", "guardrails", "no-plaintext-secrets", "GUARDRAIL.md");
+    writeFileSync(path, readFileSync(path, "utf-8").replace("Never store", "Never ever store"));
+    const result = runUpgrade(dir, true, true);
+    assert.ok(result.updated.includes("no-plaintext-secrets"));
+    const output = logs.join("\n");
+    assert.ok(output.includes("Would update"), "Should show would update message");
+    assert.ok(output.includes("-") || output.includes("+") || output.includes("@@"), "Should show diff content");
+  } finally {
+    console.log = origLog;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

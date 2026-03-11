@@ -47,3 +47,12 @@ test("validatePath: nonexistent path", () => {
   assert.strictEqual(result.invalid, 1);
   assert.ok(result.results[0].errors.length > 0);
 });
+
+test("validatePath: non-guardrail file returns explicit error", () => {
+  const path = join(examplesDir, "pre-commit", "README.md");
+  const result = validatePath(path);
+  assert.strictEqual(result.total, 1);
+  assert.strictEqual(result.invalid, 1);
+  assert.ok(result.results[0].errors[0].includes("Not a guardrail file"));
+  assert.ok(result.results[0].errors[0].includes("README.md"));
+});

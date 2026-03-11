@@ -39,18 +39,12 @@ This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and
 
 ### Add more guardrails
 
+Add one or several at once:
+
 ```bash
-npx guardrails-ref add no-destructive-commands
-npx guardrails-ref add no-new-deps-without-approval
-npx guardrails-ref add no-hardcoded-urls
-npx guardrails-ref add no-sudo-commands
-npx guardrails-ref add require-tests
-npx guardrails-ref add no-inline-styles
-npx guardrails-ref add no-raw-sql
-npx guardrails-ref add no-magic-numbers
-npx guardrails-ref add database-migrations
-npx guardrails-ref add rate-limiting
-npx guardrails-ref add no-console-in-production
+npx guardrails-ref add no-destructive-commands no-new-deps-without-approval no-hardcoded-urls
+npx guardrails-ref add no-sudo-commands require-tests no-inline-styles
+npx guardrails-ref add no-raw-sql no-magic-numbers database-migrations rate-limiting no-console-in-production
 ```
 
 ### Validate and list
@@ -79,8 +73,9 @@ npx guardrails-ref setup --remove
 ### Upgrade guardrails
 
 ```bash
-npx guardrails-ref upgrade          # Update to latest templates
-npx guardrails-ref upgrade --dry-run  # Preview changes
+npx guardrails-ref upgrade              # Update to latest templates
+npx guardrails-ref upgrade --dry-run    # Preview changes
+npx guardrails-ref upgrade --dry-run --diff  # Preview with diff
 ```
 
 ### Pre-commit
@@ -133,7 +128,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup.
 ```
 agent-guardrails/
 ├── spec/                    # Specification and client guide
-├── guardrails-ref/          # CLI (init, add, remove, setup, validate, list)
+├── guardrails-ref/          # CLI (init, add, remove, setup, validate, check, upgrade, list)
 ├── examples/                # Reference guardrails
 ├── docs/                    # Tutorial
 └── LICENSE

@@ -59,8 +59,17 @@ export function validatePath(inputPath: string): ValidateResult {
   try {
     const stat = statSync(resolved);
     if (stat.isFile()) {
-      if (GUARDRAIL_FILENAMES.includes(resolved.split(/[/\\]/).pop() || "")) {
+      const filename = resolved.split(/[/\\]/).pop() || "";
+      if (GUARDRAIL_FILENAMES.includes(filename)) {
         filesToValidate = [resolved];
+      } else {
+        results.push({
+          path: resolved,
+          success: false,
+          errors: [`Not a guardrail file (expected GUARDRAIL.md or GUARDRAILS.md): ${filename}`],
+          warnings: [],
+        });
+        invalid++;
       }
     } else if (stat.isDirectory()) {
       filesToValidate = findGuardrailFiles(resolved);

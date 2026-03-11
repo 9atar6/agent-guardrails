@@ -121,36 +121,56 @@ program
   });
 
 program
-  .command("add [name] [path]")
-  .description("Add an example guardrail by name (use --list to see available)")
+  .command("add [names...]")
+  .description("Add example guardrail(s) by name — pass multiple to add several at once")
   .option("-l, --list", "List available guardrails to add")
-  .action((name: string | undefined, path?: string, cmd?: { opts: () => { list?: boolean } }) => {
+  .option("-p, --path <path>", "Target directory", ".")
+  .action((names: string[] = [], cmd?: { opts: () => { list?: boolean; path?: string } }) => {
     const opts = cmd?.opts?.() ?? {};
     if (opts.list) {
       console.log("Available guardrails:");
       for (const n of TEMPLATE_NAMES) {
         console.log("  " + n);
       }
-      console.log("\nUsage: npx guardrails-ref add <name> [path]");
+      console.log("\nUsage: npx guardrails-ref add <name> [name2 ...] [path]");
       return;
     }
-    if (!name || !name.trim()) {
-      console.log("Usage: npx guardrails-ref add <name> [path]");
+    // If last arg looks like a path, use it (backward compat: add name .)
+    let path = opts.path ?? ".";
+    const args = names.filter((n) => n != null && String(n).trim());
+    const looksLikePath = (s: string) =>
+      s === "." || s === ".." || s.includes("/") || s.includes("\\");
+    if (args.length >= 1 && looksLikePath(args[args.length - 1])) {
+      if (args.length === 1) {
+        console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
+        console.log("Use --list to see available guardrails");
+        process.exit(1);
+        return;
+      }
+      path = args.pop()!;
+    }
+    if (args.length === 0) {
+      console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
       console.log("Use --list to see available guardrails");
       process.exit(1);
       return;
     }
-    const ok = runAdd(name, path ?? ".");
-    process.exit(ok ? 0 : 1);
+    let failed = 0;
+    for (const name of args) {
+      if (!name.trim()) continue;
+      if (!runAdd(name, path)) failed++;
+    }
+    process.exit(failed > 0 ? 1 : 0);
   });
 
 program
   .command("upgrade [path]")
   .description("Update installed guardrails to latest template versions")
   .option("-n, --dry-run", "Show what would be updated without writing")
-  .action((path?: string, cmd?: { opts: () => { dryRun?: boolean } }) => {
+  .option("-d, --diff", "Show diff for each updated guardrail")
+  .action((path?: string, cmd?: { opts: () => { dryRun?: boolean; diff?: boolean } }) => {
     const opts = cmd?.opts?.() ?? {};
-    runUpgrade(path ?? ".", opts.dryRun);
+    runUpgrade(path ?? ".", opts.dryRun, opts.diff);
   });
 
 program

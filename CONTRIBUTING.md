@@ -11,7 +11,7 @@ Thank you for your interest in contributing. This document explains how to get s
 3. Run `npm run validate` and `npm run test` to ensure they pass
 4. Open a pull request
 
-Templates load from `examples/` at runtime — no need to edit `templates.ts`.
+Templates load from `examples/` at runtime — no need to edit `templates.ts`. **Exception:** If you edit `examples/no-plaintext-secrets/GUARDRAIL.md`, also update the `BUNDLED` fallback in `guardrails-ref/src/templates.ts` (used when examples are unavailable).
 
 ### Improve the specification
 

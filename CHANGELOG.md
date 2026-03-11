@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-03-11
+
+### Added
+
+- **Bulk add** — Add multiple guardrails in one command: `npx guardrails-ref add no-destructive-commands no-hardcoded-urls rate-limiting`
+- **upgrade --diff** — Show unified diff for each updated guardrail (use with `--dry-run` to preview changes)
+
+### Fixed
+
+- **remove** — "Installed" hint now lists only `.agents/guardrails/` contents, not guardrails from elsewhere in the project
+- **parse** — Directory-name check no longer triggers for files at project root (e.g. `GUARDRAIL.md`)
+- **validate** — Non-guardrail files (e.g. `README.md`) now return an explicit error instead of "No GUARDRAIL.md files found"
+
 ## [1.0.7] - 2026-03-11
 
 ### Added

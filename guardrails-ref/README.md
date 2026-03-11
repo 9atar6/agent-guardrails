@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node: >=18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
-CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, and list GUARDRAIL.md files.
+CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, check, upgrade, and list GUARDRAIL.md files.
 
 ## Why?
 
@@ -25,12 +25,12 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | Command | Description |
 |---------|-------------|
 | `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor and Claude Code |
-| `npx guardrails-ref add <name> [path]` | Add an example guardrail (name required, e.g. no-destructive-commands) |
+| `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail (name required) |
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor rules and Claude instructions (use `--remove` to undo) |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
-| `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview) |
+| `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
 
 ## Supported IDEs
@@ -58,7 +58,7 @@ Or with full output or JSON:
 
 ```bash
 npx guardrails-ref init
-npx guardrails-ref add no-destructive-commands
+npx guardrails-ref add no-destructive-commands no-hardcoded-urls
 npx guardrails-ref add no-new-deps-without-approval
 npx guardrails-ref validate .
 npx guardrails-ref list .

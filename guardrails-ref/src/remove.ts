@@ -11,7 +11,7 @@ export function runRemove(name: string, projectPath: string = "."): boolean {
   const targetFile = resolve(targetDir, "GUARDRAIL.md");
 
   if (!existsSync(targetFile)) {
-    const guardrails = listGuardrails(projectPath);
+    const guardrails = listGuardrails(guardrailsDir);
     const names = guardrails.map((g) => g.name);
     console.log(chalk.red("Guardrail not found:") + " .agents/guardrails/" + normalized);
     if (names.length > 0) {

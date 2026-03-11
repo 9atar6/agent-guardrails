@@ -109,10 +109,13 @@ export function parseGuardrailFile(filePath: string): ParseResult {
     }
   }
 
-  // Check directory name matches (when in a directory)
-  const dirName = filePath.split(/[/\\]/).slice(-2)[0];
-  if (dirName && dirName !== "." && typeof name === "string" && name !== dirName) {
-    warnings.push(`name "${name}" does not match parent directory "${dirName}"`);
+  // Check directory name matches (only when file is inside a directory)
+  const pathParts = filePath.split(/[/\\]/);
+  if (pathParts.length > 1) {
+    const dirName = pathParts.slice(-2)[0];
+    if (dirName && dirName !== "." && typeof name === "string" && name !== dirName) {
+      warnings.push(`name "${name}" does not match parent directory "${dirName}"`);
+    }
   }
 
   if (errors.length > 0) {
