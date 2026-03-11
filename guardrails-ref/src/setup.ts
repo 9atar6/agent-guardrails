@@ -13,6 +13,10 @@ export interface SetupResult {
   message: string;
 }
 
+/**
+ * Removes the guardrail rule from file content.
+ * When the resulting content is empty, the caller may delete the file (e.g. .cursorrules, .claude/instructions.md).
+ */
 function removeRuleFromContent(content: string): string {
   const lines = content.split("\n").filter((line) => !line.includes(GUARDRAIL_RULE_MARKER));
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();

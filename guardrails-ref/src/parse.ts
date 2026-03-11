@@ -1,6 +1,6 @@
 import matter from "gray-matter";
 import { readFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, dirname, basename } from "path";
 
 export interface GuardrailFrontmatter {
   name: string;
@@ -109,13 +109,12 @@ export function parseGuardrailFile(filePath: string): ParseResult {
     }
   }
 
-  // Check directory name matches (only when file is inside a directory)
-  const pathParts = filePath.split(/[/\\]/);
-  if (pathParts.length > 1) {
-    const dirName = pathParts.slice(-2)[0];
-    if (dirName && dirName !== "." && typeof name === "string" && name !== dirName) {
-      warnings.push(`name "${name}" does not match parent directory "${dirName}"`);
-    }
+  // Check directory name matches (only when file is GUARDRAIL.md inside a directory, not GUARDRAILS.md at root)
+  const parentDir = dirname(filePath);
+  const dirName = basename(parentDir);
+  const fileName = basename(filePath);
+  if (fileName === "GUARDRAIL.md" && dirName && dirName !== "." && typeof name === "string" && name !== dirName) {
+    warnings.push(`name "${name}" does not match parent directory "${dirName}"`);
   }
 
   if (errors.length > 0) {

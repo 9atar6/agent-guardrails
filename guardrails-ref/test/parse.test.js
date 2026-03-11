@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 import { writeFileSync, mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { parseGuardrailFile } from "../dist/parse.js";

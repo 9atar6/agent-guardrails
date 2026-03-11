@@ -1,7 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { validatePath, listGuardrails } from "../dist/validate.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -55,4 +57,33 @@ test("validatePath: non-guardrail file returns explicit error", () => {
   assert.strictEqual(result.invalid, 1);
   assert.ok(result.results[0].errors[0].includes("Not a guardrail file"));
   assert.ok(result.results[0].errors[0].includes("README.md"));
+});
+
+test("validatePath: GUARDRAILS.md at project root is valid", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-root-test-"));
+  try {
+    const guardrailsPath = join(dir, "GUARDRAILS.md");
+    writeFileSync(
+      guardrailsPath,
+      `---
+name: project-constraints
+description: Consolidated project constraints. Never log secrets, never run destructive commands.
+---
+# Project Constraints
+## Trigger
+Any coding task.
+## Instruction
+Follow all project rules.
+## Reason
+Team consistency.
+`
+    );
+    const result = validatePath(guardrailsPath);
+    assert.strictEqual(result.total, 1);
+    assert.strictEqual(result.valid, 1);
+    assert.strictEqual(result.invalid, 0);
+    assert.strictEqual(result.results[0].guardrail?.name, "project-constraints");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

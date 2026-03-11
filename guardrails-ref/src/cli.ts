@@ -206,11 +206,13 @@ program
 
     if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));
+      process.exit(guardrails.length === 0 ? 1 : 0);
       return;
     }
 
     if (guardrails.length === 0) {
       console.log(chalk.yellow("No guardrails found"));
+      process.exit(1);
       return;
     }
 

@@ -180,7 +180,6 @@ Once IDEs add native support, this step won't be needed.
 | **no-magic-numbers** | Unexplained numeric literals |
 
 Copy from `examples/` or run `npx guardrails-ref add <name>` to add any example. Use `npx guardrails-ref add --list` to see all available.
-`no-plaintext-secrets`, `database-migrations`, `no-destructive-commands`, `no-new-deps-without-approval`, `no-hardcoded-urls`, `no-sudo-commands`, `rate-limiting`, `no-console-in-production`, `require-tests`, `no-inline-styles`, `no-raw-sql`, `no-magic-numbers`.
 
 ---
 

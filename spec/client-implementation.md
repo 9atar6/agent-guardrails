@@ -4,6 +4,8 @@
 
 This guide walks through how to add guardrails support to an AI agent or development tool. It covers discovery, parsing, injection into the system prompt, and precedence handling.
 
+**Target agents:** Cursor, Claude Code, VS Code Copilot, and other AI coding assistants. The format is open for any IDE or agent to implement.
+
 Prerequisites: Familiarity with the [Agent Guardrails specification](./specification.md), which defines the `GUARDRAIL.md` file format and directory conventions.
 
 ## Core principle: load at session start

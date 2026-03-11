@@ -54,6 +54,8 @@ Or with full output or JSON:
   run: npx guardrails-ref validate . --json
 ```
 
+**Note:** `list` exits with code 1 when no guardrails are found, so it can be used in scripts to check for guardrail presence.
+
 ## Examples
 
 ```bash

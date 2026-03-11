@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-11
+
+### Added
+
+- **SECURITY.md** — Security policy for vulnerability reporting
+- **GUARDRAILS.md test** — Validate now has a test for `GUARDRAILS.md` at project root
+- **list exit code test** — Test that `list` exits 1 when no guardrails found
+
+### Changed
+
+- **Version sync** — Root and guardrails-ref package.json both at 1.1.0
+- **list** — Exits with code 1 when no guardrails found (CI-friendly for scripts)
+- **parse** — Uses `path.dirname` and `path.basename` for cross-platform path handling; directory-name check only applies to `GUARDRAIL.md` in subdirs, not `GUARDRAILS.md` at root
+- **Client implementation guide** — Mentions VS Code Copilot as a target agent
+- **setup** — Documented that empty files are removed when rule is removed
+
+### Fixed
+
+- **Tutorial** — Removed stray duplicate sentence in Part 5
+- **Tests** — `parse.test.js` and `validate.test.js` now use `node:url` import for consistency
+
 ## [1.0.9] - 2026-03-11
 
 ### Fixed
