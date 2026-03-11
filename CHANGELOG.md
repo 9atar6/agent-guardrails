@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.1] - 2026-03-11
+## [1.2.0] - 2026-03-11
 
 ### Added
 
@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **no-deprecated-apis** — Never suggest deprecated or obsolete APIs; check current docs
 - **no-unsafe-env-assumptions** — Validate required env vars at startup; fail fast with clear errors
 - **no-hardcoded-user-facing-strings** — Use i18n keys or shared constants for user-facing text
+
+### Changed
+
+- **Existing guardrails** — Added Provenance to 6 guardrails (no-hardcoded-urls, no-sudo-commands, require-tests, no-raw-sql, no-magic-numbers, no-inline-styles); fixed no-inline-styles Instruction/Reason separation
+
+## [1.1.1] - 2026-03-11
+
+### Added
+
 - **VS Code Copilot support** — `setup` now adds the guardrail rule to `.github/copilot-instructions.md` (GitHub Copilot's project instructions file)
 - **setup --ide &lt;name&gt;** — Target a specific IDE: `cursor`, `claude`, `copilot`, or `auto` (e.g. `npx guardrails-ref setup --ide copilot`). Use `auto` to only configure IDEs that already have config files
 - **setup --check** — Show which IDEs are configured and whether they have the guardrail rule
@@ -29,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **setup** — Configures Cursor, Claude Code, and VS Code Copilot by default (previously only Cursor and Claude Code)
-- **Existing guardrails** — Added Provenance to 6 guardrails (no-hardcoded-urls, no-sudo-commands, require-tests, no-raw-sql, no-magic-numbers, no-inline-styles); fixed no-inline-styles Instruction/Reason separation
 
 ### Fixed
 
