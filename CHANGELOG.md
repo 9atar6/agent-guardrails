@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.9] - 2026-03-11
+
+### Fixed
+
+- **CLI** — validate, check, list now use `cmd.opts()` consistently for options (fixes potential option parsing issues)
+- **add** — `--path` takes precedence over positional path when both are provided
+- **setup** — Rule removal marker now more specific to reduce false positives (e.g. "You MUST read...")
+- **listGuardrails** — No longer parses files twice (uses cached guardrail from validate result)
+- **upgrade** — "All X already up to date" now prints in dry-run mode too
+- **e2e test** — Removed unused import
+
+### Changed
+
+- **validate** — Results now include `guardrail` for successful parses (avoids redundant parsing)
+
 ## [1.0.8] - 2026-03-11
 
 ### Added

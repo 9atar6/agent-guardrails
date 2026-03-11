@@ -74,10 +74,8 @@ export function runUpgrade(
     }
   }
 
-  if (result.updated.length === 0 && !dryRun) {
-    if (result.skipped.length > 0) {
-      console.log(chalk.gray("All " + result.skipped.length + " guardrail(s) already up to date"));
-    }
+  if (result.updated.length === 0 && result.skipped.length > 0) {
+    console.log(chalk.gray("All " + result.skipped.length + " guardrail(s) already up to date"));
   }
   if (result.notFound.length > 0) {
     console.log(chalk.yellow("No template for:") + " " + result.notFound.join(", "));

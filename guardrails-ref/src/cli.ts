@@ -101,16 +101,18 @@ program
   .description("Validate GUARDRAIL.md files in a directory or a single file")
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
-  .action((path = ".", options: { json?: boolean; strict?: boolean } = {}) => {
-    runValidate(path, options);
+  .action((path = ".", cmd?: { opts: () => { json?: boolean; strict?: boolean } }) => {
+    const opts = cmd?.opts?.() ?? {};
+    runValidate(path, opts);
   });
 
 program
   .command("check [path]")
   .description("Validate guardrails with minimal output (CI-friendly alias)")
   .option("-s, --strict", "Fail on warnings")
-  .action((path = ".", options: { strict?: boolean } = {}) => {
-    runValidate(path, { ...options, minimal: true });
+  .action((path = ".", cmd?: { opts: () => { strict?: boolean } }) => {
+    const opts = cmd?.opts?.() ?? {};
+    runValidate(path, { ...opts, minimal: true });
   });
 
 program
@@ -136,7 +138,8 @@ program
       return;
     }
     // If last arg looks like a path, use it (backward compat: add name .)
-    let path = opts.path ?? ".";
+    // --path takes precedence when explicitly provided (opts.path !== ".")
+    let targetPath = opts.path ?? ".";
     const args = names.filter((n) => n != null && String(n).trim());
     const looksLikePath = (s: string) =>
       s === "." || s === ".." || s.includes("/") || s.includes("\\");
@@ -147,7 +150,8 @@ program
         process.exit(1);
         return;
       }
-      path = args.pop()!;
+      if (targetPath === ".") targetPath = args.pop()!;
+      else args.pop(); // discard positional when --path was explicit
     }
     if (args.length === 0) {
       console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
@@ -158,7 +162,7 @@ program
     let failed = 0;
     for (const name of args) {
       if (!name.trim()) continue;
-      if (!runAdd(name, path)) failed++;
+      if (!runAdd(name, targetPath)) failed++;
     }
     process.exit(failed > 0 ? 1 : 0);
   });
@@ -196,10 +200,11 @@ program
   .command("list [path]")
   .description("List discovered guardrails")
   .option("-j, --json", "Output as JSON")
-  .action((path = ".", options: { json?: boolean }) => {
+  .action((path = ".", cmd?: { opts: () => { json?: boolean } }) => {
+    const opts = cmd?.opts?.() ?? {};
     const guardrails = listGuardrails(path);
 
-    if (options.json) {
+    if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));
       return;
     }

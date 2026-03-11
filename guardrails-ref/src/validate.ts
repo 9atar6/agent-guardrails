@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from "fs";
 import { join, resolve } from "path";
-import { parseGuardrailFile, type ParseResult } from "./parse.js";
+import { parseGuardrailFile, type ParseResult, type ParsedGuardrail } from "./parse.js";
 
 const GUARDRAIL_FILENAMES = ["GUARDRAIL.md", "GUARDRAILS.md"];
 const MAX_DEPTH = 6;
@@ -15,6 +15,7 @@ export interface ValidateResult {
     success: boolean;
     errors: string[];
     warnings: string[];
+    guardrail?: ParsedGuardrail;
   }>;
 }
 
@@ -91,6 +92,7 @@ export function validatePath(inputPath: string): ValidateResult {
       success: parseResult.success,
       errors: parseResult.errors,
       warnings: parseResult.warnings,
+      guardrail: parseResult.guardrail,
     });
     if (parseResult.success) {
       valid++;
@@ -112,15 +114,12 @@ export function listGuardrails(inputPath: string): Array<{ path: string; name: s
   const guardrails: Array<{ path: string; name: string; description: string }> = [];
 
   for (const r of validateResult.results) {
-    if (r.success) {
-      const parseResult = parseGuardrailFile(r.path);
-      if (parseResult.guardrail) {
-        guardrails.push({
-          path: parseResult.guardrail.path,
-          name: parseResult.guardrail.name,
-          description: parseResult.guardrail.description,
-        });
-      }
+    if (r.success && r.guardrail) {
+      guardrails.push({
+        path: r.guardrail.path,
+        name: r.guardrail.name,
+        description: r.guardrail.description,
+      });
     }
   }
 

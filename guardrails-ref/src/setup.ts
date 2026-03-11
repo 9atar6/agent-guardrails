@@ -5,7 +5,7 @@ import chalk from "chalk";
 const GUARDRAIL_RULE =
   "You MUST read and follow all constraints in .agents/guardrails/. Never violate a guardrail without explicit human approval.";
 
-const GUARDRAIL_RULE_MARKER = "read and follow all constraints in .agents/guardrails";
+const GUARDRAIL_RULE_MARKER = "You MUST read and follow all constraints in .agents/guardrails";
 
 export interface SetupResult {
   cursor: boolean;

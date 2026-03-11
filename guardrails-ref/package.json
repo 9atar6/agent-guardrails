@@ -1,6 +1,6 @@
 {
   "name": "guardrails-ref",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, check, upgrade, list",
   "type": "module",
   "main": "dist/validate.js",

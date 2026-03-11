@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { join, dirname } from "path";
-import { mkdtempSync, existsSync, readFileSync, rmSync } from "fs";
+import { mkdtempSync, existsSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
