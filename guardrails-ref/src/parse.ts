@@ -43,7 +43,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
   } catch (err) {
     return {
       success: false,
-      errors: [`Cannot read file: ${filePath}`],
+      errors: [`Cannot read file: ${filePath}. Hint: Check file exists and is readable.`],
       warnings: [],
     };
   }
@@ -54,7 +54,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
   } catch (err) {
     return {
       success: false,
-      errors: [`Invalid YAML frontmatter: ${(err as Error).message}`],
+        errors: [`Invalid YAML frontmatter: ${(err as Error).message}. Hint: Ensure valid YAML between --- delimiters.`],
       warnings: [],
     };
   }
@@ -65,14 +65,14 @@ export function parseGuardrailFile(filePath: string): ParseResult {
   // Required: name
   const name = data.name;
   if (typeof name !== "string" || !name.trim()) {
-    errors.push("Missing or empty required field: name");
+    errors.push("Missing or empty required field: name. Hint: Add `name: my-guardrail` to YAML frontmatter (lowercase, hyphens only).");
   } else {
     if (name.length > MAX_NAME_LENGTH) {
       warnings.push(`name exceeds ${MAX_NAME_LENGTH} characters`);
     }
     if (!NAME_REGEX.test(name)) {
       errors.push(
-        "name must be lowercase letters, numbers, and hyphens only; no consecutive hyphens; cannot start or end with hyphen"
+        "name must be lowercase letters, numbers, and hyphens only; no consecutive hyphens; cannot start or end with hyphen. Hint: Use format like `no-plaintext-secrets`."
       );
     }
   }
@@ -80,7 +80,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
   // Required: description
   const description = data.description;
   if (typeof description !== "string" || !description.trim()) {
-    errors.push("Missing or empty required field: description");
+    errors.push("Missing or empty required field: description. Hint: Add `description: What this guardrail prevents` to YAML frontmatter.");
   } else if (description.length > MAX_DESCRIPTION_LENGTH) {
     warnings.push(`description exceeds ${MAX_DESCRIPTION_LENGTH} characters`);
   }
@@ -114,7 +114,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
   const dirName = basename(parentDir);
   const fileName = basename(filePath);
   if (fileName === "GUARDRAIL.md" && dirName && dirName !== "." && typeof name === "string" && name !== dirName) {
-    warnings.push(`name "${name}" does not match parent directory "${dirName}"`);
+    warnings.push(`name "${name}" does not match parent directory "${dirName}". Hint: Rename directory to match, or set name to "${dirName}".`);
   }
 
   if (errors.length > 0) {

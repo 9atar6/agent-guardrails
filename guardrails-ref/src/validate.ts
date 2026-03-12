@@ -1,6 +1,18 @@
 import { readdirSync, statSync, readFileSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
+import matter from "gray-matter";
 import { parseGuardrailFile, type ParseResult, type ParsedGuardrail } from "./parse.js";
+
+/** Canonical frontmatter key order for normalization */
+const FRONTMATTER_KEY_ORDER = [
+  "name",
+  "description",
+  "scope",
+  "severity",
+  "triggers",
+  "license",
+  "metadata",
+];
 
 const GUARDRAIL_FILENAMES = ["GUARDRAIL.md", "GUARDRAILS.md"];
 const MAX_DEPTH = 6;
@@ -67,7 +79,7 @@ export function validatePath(inputPath: string): ValidateResult {
         results.push({
           path: resolved,
           success: false,
-          errors: [`Not a guardrail file (expected GUARDRAIL.md or GUARDRAILS.md): ${filename}`],
+          errors: [`Not a guardrail file (expected GUARDRAIL.md or GUARDRAILS.md): ${filename}. Hint: Use GUARDRAIL.md in a subdir or GUARDRAILS.md at root.`],
           warnings: [],
         });
         invalid++;
@@ -79,7 +91,7 @@ export function validatePath(inputPath: string): ValidateResult {
     results.push({
       path: resolved,
       success: false,
-      errors: ["Path does not exist or is not accessible"],
+      errors: ["Path does not exist or is not accessible. Hint: Check the path and run from project root."],
       warnings: [],
     });
     invalid++;
@@ -110,16 +122,52 @@ export function validatePath(inputPath: string): ValidateResult {
 }
 
 /**
- * Apply trivial fixes to a guardrail file: trim trailing whitespace per line, ensure single trailing newline.
+ * Build frontmatter object with keys in canonical order. Extra keys go after, sorted.
+ */
+function normalizeFrontmatterKeys(data: Record<string, unknown>): Record<string, unknown> {
+  const ordered: Record<string, unknown> = {};
+  const seen = new Set<string>();
+  for (const key of FRONTMATTER_KEY_ORDER) {
+    if (key in data) {
+      ordered[key] = data[key];
+      seen.add(key);
+    }
+  }
+  const extra = Object.keys(data).filter((k) => !seen.has(k)).sort();
+  for (const key of extra) {
+    ordered[key] = data[key];
+  }
+  return ordered;
+}
+
+/**
+ * Apply fixes to a guardrail file: trim trailing whitespace per line, ensure single trailing newline,
+ * and normalize frontmatter key order (name, description, scope, severity, triggers, license, metadata).
  * Returns true if file was modified.
  */
 export function fixGuardrailFile(filePath: string): boolean {
   const content = readFileSync(filePath, "utf-8");
-  const lines = content.split("\n");
-  const fixed = lines.map((l) => l.replace(/\s+$/, "")).join("\n").trimEnd();
-  const normalized = fixed + "\n";
-  if (content !== normalized) {
-    writeFileSync(filePath, normalized);
+  let parsed: { data: Record<string, unknown>; content: string };
+  try {
+    parsed = matter(content);
+  } catch {
+    // Invalid frontmatter: only apply whitespace fix
+    const lines = content.split("\n");
+    const fixed = lines.map((l) => l.replace(/\s+$/, "")).join("\n").trimEnd();
+    const normalized = fixed + "\n";
+    if (content !== normalized) {
+      writeFileSync(filePath, normalized);
+      return true;
+    }
+    return false;
+  }
+  const body = parsed.content.split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trimEnd();
+  const orderedData = normalizeFrontmatterKeys(parsed.data);
+  // lineWidth: -1 prevents js-yaml from folding long lines (reduces format churn)
+  const normalized = matter.stringify(body, orderedData, { lineWidth: -1 } as Record<string, unknown>);
+  const withNewline = normalized.endsWith("\n") ? normalized : normalized + "\n";
+  if (content !== withNewline) {
+    writeFileSync(filePath, withNewline);
     return true;
   }
   return false;

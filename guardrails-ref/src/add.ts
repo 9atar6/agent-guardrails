@@ -4,7 +4,7 @@ import chalk from "chalk";
 import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATES, TEMPLATE_NAMES } from "./templates.js";
 
-export function runAdd(name: string, projectPath: string = ".", userScope = false): boolean {
+export function runAdd(name: string, projectPath: string = ".", userScope = false, dryRun = false): boolean {
   const normalized = name.toLowerCase().replace(/\s+/g, "-");
   const content = TEMPLATES[normalized];
 
@@ -20,7 +20,16 @@ export function runAdd(name: string, projectPath: string = ".", userScope = fals
 
   const pathLabel = userScope ? "~/.agents/guardrails/" : ".agents/guardrails/";
   if (existsSync(exampleFile)) {
-    console.log(chalk.yellow(pathLabel + normalized + "/GUARDRAIL.md already exists"));
+    if (dryRun) {
+      console.log(chalk.gray("Would skip (already exists):") + " " + pathLabel + normalized + "/GUARDRAIL.md");
+    } else {
+      console.log(chalk.yellow(pathLabel + normalized + "/GUARDRAIL.md already exists"));
+    }
+    return true;
+  }
+
+  if (dryRun) {
+    console.log(chalk.green("Would add:") + " " + pathLabel + normalized + "/GUARDRAIL.md");
     return true;
   }
 

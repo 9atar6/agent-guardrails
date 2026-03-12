@@ -66,6 +66,8 @@ npx guardrails-ref add no-sudo-commands require-tests no-inline-styles
 npx guardrails-ref add no-raw-sql no-magic-numbers database-migrations rate-limiting no-console-in-production
 ```
 
+Preview before adding: `npx guardrails-ref add --dry-run no-destructive-commands`
+
 Or add a preset:
 
 ```bash
@@ -90,9 +92,10 @@ npx guardrails-ref validate ~
 
 ```bash
 npx guardrails-ref validate .
-npx guardrails-ref validate . --fix    # Apply trivial fixes (whitespace, newline)
+npx guardrails-ref validate . --fix    # Apply fixes (whitespace, newline, frontmatter key order)
 npx guardrails-ref check .     # Minimal output (CI)
 npx guardrails-ref list .
+npx guardrails-ref list . --compact   # One name per line (e.g. pipe to xargs)
 npx guardrails-ref validate . --json   # JSON output for scripting
 npx guardrails-ref validate . --strict # Fail on warnings (CI mode)
 npx guardrails-ref list . --json      # JSON output for scripting
@@ -113,6 +116,7 @@ npx guardrails-ref setup --dry-run     # Preview what would be added/removed
 npx guardrails-ref setup --ide auto    # Only configure IDEs that already have config
 npx guardrails-ref setup --ide cursor  # Target one IDE: cursor, claude, copilot, windsurf, continue, jetbrains, junie
 npx guardrails-ref setup --check       # Show which IDEs are configured
+npx guardrails-ref setup --check --fail-if-missing  # Exit 1 if configured IDE lacks rule (CI)
 ```
 
 ### Upgrade guardrails
@@ -128,11 +132,21 @@ npx guardrails-ref diff                 # Show diff between installed and templa
 
 ```bash
 npx guardrails-ref why no-destructive-commands   # Show template content
+npx guardrails-ref why no-destructive-commands --json   # Machine-readable (name, description, body)
 ```
 
-### Pre-commit
+### Pre-commit (recommended)
 
-See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
+Run guardrails check before commits to catch invalid files early. See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
+
+### GitHub Action
+
+```yaml
+- uses: 9atar6/agent-guardrails/.github/actions/guardrails@main
+  with:
+    path: '.'       # optional
+    strict: 'true'  # optional, fail on warnings
+```
 
 ## Documentation
 

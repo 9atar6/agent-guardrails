@@ -122,7 +122,7 @@ program
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
   .option("-u, --user", "Use user-level guardrails (~/.agents/guardrails/)")
-  .option("-f, --fix", "Apply trivial fixes (trim trailing whitespace, normalize newline)")
+  .option("-f, --fix", "Apply fixes (whitespace, newline, frontmatter key order)")
   .action(function (this: { opts: () => { json?: boolean; strict?: boolean; user?: boolean; fix?: boolean } }, path?: string) {
     const opts = this.opts();
     runValidate(path ?? ".", opts);
@@ -155,7 +155,8 @@ program
   .option("--preset <name>", "Add preset(s); comma-separated for multiple (e.g. default,frontend)")
   .option("-p, --path <path>", "Target directory", ".")
   .option("-u, --user", "Add to user-level ~/.agents/guardrails/")
-  .action(function (this: { opts: () => { list?: boolean; preset?: string; path?: string; user?: boolean } }, names: string[] = []) {
+  .option("-n, --dry-run", "Show what would be added without writing files")
+  .action(function (this: { opts: () => { list?: boolean; preset?: string; path?: string; user?: boolean; dryRun?: boolean } }, names: string[] = []) {
     const opts = this.opts();
     if (opts.list) {
       console.log("Available guardrails:");
@@ -205,10 +206,11 @@ program
     }
     const userScope = opts.user ?? targetPath === "~";
     const addPath = userScope ? "~" : targetPath;
+    const dryRun = opts.dryRun ?? false;
     let failed = 0;
     for (const name of args) {
       if (!name.trim()) continue;
-      if (!runAdd(name, addPath, userScope)) failed++;
+      if (!runAdd(name, addPath, userScope, dryRun)) failed++;
     }
     process.exit(failed > 0 ? 1 : 0);
   });
@@ -257,7 +259,8 @@ program
   .option("-i, --ide <name>", "Target IDE: cursor, claude, copilot, windsurf, continue, jetbrains, junie, or auto")
   .option("-n, --dry-run", "Show what would be added/removed without writing files")
   .option("-c, --check", "Show which IDEs are configured and whether they have the rule")
-  .action(function (this: { opts: () => { remove?: boolean; preCommit?: boolean; ide?: string; dryRun?: boolean; check?: boolean } }, path?: string) {
+  .option("--fail-if-missing", "Exit 1 if any configured IDE lacks the rule (use with --check, for CI)")
+  .action(function (this: { opts: () => { remove?: boolean; preCommit?: boolean; ide?: string; dryRun?: boolean; check?: boolean; failIfMissing?: boolean } }, path?: string) {
     const p = path ?? ".";
     const opts = this.opts();
     if (opts.preCommit) {
@@ -280,6 +283,14 @@ program
       fmt("Continue", check.continue);
       fmt("JetBrains AI Assistant", check.jetbrains);
       fmt("JetBrains Junie", check.junie);
+      if (opts.failIfMissing) {
+        const ides = [check.cursor, check.claude, check.copilot, check.windsurf, check.continue, check.jetbrains, check.junie];
+        const configuredWithoutRule = ides.filter((r) => r.configured && !r.hasRule);
+        if (configuredWithoutRule.length > 0) {
+          console.error(chalk.red("\nSome configured IDEs lack the guardrail rule. Run `npx guardrails-ref setup` to fix."));
+          process.exit(1);
+        }
+      }
       return;
     }
     const validIdes = ["cursor", "claude", "copilot", "windsurf", "continue", "jetbrains", "junie", "auto"];
@@ -297,8 +308,10 @@ program
 program
   .command("why <name>")
   .description("Show guardrail content (e.g. npx guardrails-ref why no-destructive-commands)")
-  .action((name: string) => {
-    const ok = runWhy(name);
+  .option("-j, --json", "Output as JSON")
+  .action(function (this: { opts: () => { json?: boolean } }, name: string) {
+    const opts = this.opts();
+    const ok = runWhy(name, opts.json);
     process.exit(ok ? 0 : 1);
   });
 
@@ -306,8 +319,9 @@ program
   .command("list [path]")
   .description("List discovered guardrails")
   .option("-j, --json", "Output as JSON")
+  .option("-c, --compact", "One name per line (for scripting)")
   .option("-u, --user", "List user-level ~/.agents/guardrails/")
-  .action(function (this: { opts: () => { json?: boolean; user?: boolean } }, path?: string) {
+  .action(function (this: { opts: () => { json?: boolean; compact?: boolean; user?: boolean } }, path?: string) {
     const opts = this.opts();
     const userScope = opts.user ?? path === "~";
     const pathToScan = userScope ? resolveGuardrailsDir("~", true) : (path ?? ".");
@@ -315,6 +329,12 @@ program
 
     if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));
+      process.exit(guardrails.length === 0 ? 1 : 0);
+      return;
+    }
+
+    if (opts.compact) {
+      for (const g of guardrails) console.log(g.name);
       process.exit(guardrails.length === 0 ? 1 : 0);
       return;
     }

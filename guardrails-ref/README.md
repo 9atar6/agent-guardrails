@@ -47,7 +47,7 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, `windsurf`, `continue`, `jetbrains`, `junie`, or `auto` |
 | `npx guardrails-ref setup --dry-run [path]` | Show what would be added/removed without writing files |
 | `npx guardrails-ref setup --check [path]` | Show which IDEs are configured and whether they have the rule |
-| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings, `--fix` to apply trivial fixes) |
+| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings, `--fix` to apply fixes) |
 | `npx guardrails-ref validate --user` or `validate ~` | Validate user-level guardrails |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |

@@ -2,9 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert";
 import { join, dirname } from "path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { validatePath, listGuardrails } from "../dist/validate.js";
+import { validatePath, listGuardrails, fixGuardrailFile } from "../dist/validate.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const examplesDir = join(__dirname, "..", "..", "examples");
@@ -83,6 +83,86 @@ Team consistency.
     assert.strictEqual(result.valid, 1);
     assert.strictEqual(result.invalid, 0);
     assert.strictEqual(result.results[0].guardrail?.name, "project-constraints");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("fixGuardrailFile: trims trailing whitespace and normalizes newline", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-fix-test-"));
+  const path = join(dir, "GUARDRAIL.md");
+  try {
+    writeFileSync(
+      path,
+      `---
+name: test-guardrail
+description: A test.
+---
+# Body
+Line with spaces   \t
+`
+    );
+    const modified = fixGuardrailFile(path);
+    assert.strictEqual(modified, true);
+    const content = readFileSync(path, "utf-8");
+    assert.ok(!content.includes("   \t"));
+    assert.strictEqual(content.slice(-1), "\n");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("fixGuardrailFile: normalizes frontmatter key order", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-fix-test-"));
+  const path = join(dir, "GUARDRAIL.md");
+  try {
+    writeFileSync(
+      path,
+      `---
+severity: critical
+name: no-plaintext-secrets
+triggers:
+  - "Logging"
+description: Never log secrets.
+scope: project
+---
+# Body
+`
+    );
+    const modified = fixGuardrailFile(path);
+    assert.strictEqual(modified, true);
+    const content = readFileSync(path, "utf-8");
+    const frontmatter = content.slice(0, content.indexOf("---", 3));
+    assert.ok(frontmatter.includes("name: no-plaintext-secrets"));
+    assert.ok(frontmatter.includes("description:"));
+    const namePos = frontmatter.indexOf("name:");
+    const descPos = frontmatter.indexOf("description:");
+    const scopePos = frontmatter.indexOf("scope:");
+    const sevPos = frontmatter.indexOf("severity:");
+    const trigPos = frontmatter.indexOf("triggers:");
+    assert.ok(namePos < descPos, "name before description");
+    assert.ok(descPos < scopePos, "description before scope");
+    assert.ok(scopePos < sevPos, "scope before severity");
+    assert.ok(sevPos < trigPos, "severity before triggers");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("fixGuardrailFile: returns false when no changes needed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-fix-test-"));
+  const path = join(dir, "GUARDRAIL.md");
+  const canonical = `---
+name: test
+description: Test.
+---
+# Body
+`;
+  try {
+    writeFileSync(path, canonical);
+    const modified = fixGuardrailFile(path);
+    assert.strictEqual(modified, false);
+    assert.strictEqual(readFileSync(path, "utf-8"), canonical);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

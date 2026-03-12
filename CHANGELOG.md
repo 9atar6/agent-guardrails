@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.6] - 2026-03-12
+
+### Added
+
+- **add --dry-run** — Preview what would be added without writing files
+- **list --compact** — One name per line for scripting (e.g. piping to xargs)
+- **why --json** — Machine-readable guardrail content (name, description, body)
+- **setup --check --fail-if-missing** — Exit 1 if configured IDE lacks rule (CI enforcement)
+- **GitHub Action** — `.github/actions/guardrails` for validate/check in workflows
+- **Website** — Copy buttons for add commands on examples page; modal with full guardrail content; preset modal with guardrail list; clickable guardrail names in preset modal open guardrail modal; click table name again to close modal; mobile: only one modal at a time
+
+### Changed
+
+- **validate --fix** — Broader auto-fix: frontmatter key normalization (name, description, scope, severity, triggers, license, metadata), whitespace, newline; may reformat quote style
+- **validate / parse** — Actionable hints in error messages
+- **Website** — og:image, CSP headers, mobile layout improvements; copy button fixed at right edge of Name column; preset modal guardrail links styled as links; full-width layout on mobile; table layout (fixed columns) for desktop and mobile
+
 ## [1.2.5] - 2026-03-12
 
 ### Added
@@ -50,9 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Version bump for npm sync
-- **CONTRIBUTING.md** — Publish workflow: sync root package.json and CHANGELOG; use `npm version 1.2.X` for specific versions
-- **Root package.json** — Build and test scripts use `--prefix guardrails-ref` (Windows-friendly, no `&&`)
+- **CONTRIBUTING.md** — Publish workflow for maintainers
 
 ## [1.2.2] - 2026-03-11
 
@@ -114,7 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **CLI options** — `validate --json`, `validate --strict`, `check --strict`, `list --json`, and `upgrade --dry-run`/`--diff` now correctly read options (Commander `this.opts()` fix)
+- **CLI options** — `validate --json`, `validate --strict`, `check --strict`, `list --json`, and `upgrade --dry-run`/`--diff` now correctly read options
 
 ## [1.1.0] - 2026-03-11
 
@@ -126,31 +141,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Version sync** — Root and guardrails-ref package.json both at 1.1.0
 - **list** — Exits with code 1 when no guardrails found (CI-friendly for scripts)
-- **parse** — Uses `path.dirname` and `path.basename` for cross-platform path handling; directory-name check only applies to `GUARDRAIL.md` in subdirs, not `GUARDRAILS.md` at root
+- **parse** — Cross-platform path handling; directory-name check only applies to `GUARDRAIL.md` in subdirs, not `GUARDRAILS.md` at root
 - **Client implementation guide** — Mentions VS Code Copilot as a target agent
 - **setup** — Documented that empty files are removed when rule is removed
-
-### Fixed
-
-- **Tutorial** — Removed stray duplicate sentence in Part 5
-- **Tests** — `parse.test.js` and `validate.test.js` now use `node:url` import for consistency
 
 ## [1.0.9] - 2026-03-11
 
 ### Fixed
 
-- **CLI** — validate, check, list now use `cmd.opts()` consistently for options (fixes potential option parsing issues)
+- **CLI** — validate, check, list now correctly parse options
 - **add** — `--path` takes precedence over positional path when both are provided
-- **setup** — Rule removal marker now more specific to reduce false positives (e.g. "You MUST read...")
-- **listGuardrails** — No longer parses files twice (uses cached guardrail from validate result)
+- **setup** — Rule removal marker now more specific to reduce false positives
+- **validate** — Results now include `guardrail` for successful parses; listGuardrails no longer parses files twice
 - **upgrade** — "All X already up to date" now prints in dry-run mode too
-- **e2e test** — Removed unused import
-
-### Changed
-
-- **validate** — Results now include `guardrail` for successful parses (avoids redundant parsing)
 
 ## [1.0.8] - 2026-03-11
 
@@ -183,10 +187,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **require-tests** — Never merge code without tests
 - **no-inline-styles** — No inline `style=` in HTML/JSX
 
-### Fixed
-
-- **CLI version** — Reads from package.json instead of hardcoded value
-
 ### Changed
 
 - **Main README** — Windows/PowerShell note, `check` command, 10 examples
@@ -203,15 +203,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **copy-examples** — Fails with exit 1 if `../examples` is missing (prevents publishing without examples)
-- **Template loading** — Validates guardrails with parser; skips invalid files and warns to stderr
 - **guardrails-ref README** — Badges, quick start, CI examples, troubleshooting, supported IDEs
 
 ## [1.0.4] - 2026-03-11
 
 ### Fixed
 
-- **npm README** — Added README.md to package files so npm displays it (was showing "This package does not have a README")
+- **npm package** — README now displays correctly on npm
 
 ## [1.0.3] - 2026-03-11
 
@@ -224,7 +222,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **README** — Added remove command to project structure and docs
-- **Templates** — Synced license and metadata with examples (no drift)
 
 ## [1.0.2] - 2026-03-11
 

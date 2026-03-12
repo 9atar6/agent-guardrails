@@ -1,0 +1,26 @@
+name: 'Guardrails Check'
+description: 'Validate Agent Guardrails (GUARDRAIL.md) in your project'
+inputs:
+  path:
+    description: 'Path to validate (default: .)'
+    required: false
+    default: '.'
+  strict:
+    description: 'Fail on warnings (--strict)'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate guardrails
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Run guardrails-ref check
+      run: |
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          npx guardrails-ref@latest check "${{ inputs.path }}" --strict
+        else
+          npx guardrails-ref@latest check "${{ inputs.path }}"
+        fi
+      shell: bash
