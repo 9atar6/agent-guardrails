@@ -111,7 +111,6 @@ See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
 
 | Resource | Description |
 |----------|-------------|
-| [Tutorial](docs/TUTORIAL.md) | Beginner's guide — what we built, why, how to use it |
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
 | [Examples](examples/) | 25 reference guardrails |
@@ -168,7 +167,6 @@ agent-guardrails/
 ├── spec/                    # Specification and client guide
 ├── guardrails-ref/          # CLI (init, add, remove, setup, validate, check, upgrade, list, why)
 ├── examples/                # Reference guardrails
-├── docs/                    # Tutorial
 └── LICENSE
 ```
 
