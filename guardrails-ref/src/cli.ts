@@ -139,19 +139,20 @@ program
 
 program
   .command("init [path]")
-  .description("Create .agents/guardrails/, add no-plaintext-secrets, and run setup (one command to get started)")
+  .description("Create .agents/guardrails/, add example(s), and run setup (one command to get started)")
   .option("-m, --minimal", "Create .agents/guardrails/ only, no example and no setup")
+  .option("-p, --preset <name>", "Add preset instead of no-plaintext-secrets (e.g. default, security)")
   .option("-u, --user", "Create ~/.agents/guardrails/ (user-level); setup is project-specific")
-  .action(function (this: { opts: () => { minimal?: boolean; user?: boolean } }, path?: string) {
+  .action(function (this: { opts: () => { minimal?: boolean; preset?: string; user?: boolean } }, path?: string) {
     const opts = this.opts();
-    runInit(path ?? ".", opts.minimal, opts.user);
+    runInit(path ?? ".", opts.minimal, opts.user, opts.preset);
   });
 
 program
   .command("add [names...]")
   .description("Add example guardrail(s) by name — pass multiple to add several at once")
   .option("-l, --list", "List available guardrails to add")
-  .option("--preset <name>", "Add preset: default or security")
+  .option("--preset <name>", "Add preset(s); comma-separated for multiple (e.g. default,frontend)")
   .option("-p, --path <path>", "Target directory", ".")
   .option("-u, --user", "Add to user-level ~/.agents/guardrails/")
   .action(function (this: { opts: () => { list?: boolean; preset?: string; path?: string; user?: boolean } }, names: string[] = []) {
@@ -161,18 +162,24 @@ program
       for (const n of TEMPLATE_NAMES) {
         console.log("  " + n);
       }
-      console.log("\nPresets: add --preset default | add --preset security");
+      console.log("\nPresets: " + Object.keys(PRESETS).map((p) => `add --preset ${p}`).join(" | "));
+      console.log("Multiple: add --preset default,frontend");
       console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
       return;
     }
     if (opts.preset) {
-      const presetNames = PRESETS[opts.preset.toLowerCase()];
-      if (!presetNames) {
-        console.error(chalk.red("Unknown preset:") + " " + opts.preset);
-        console.error(chalk.gray("Available: " + Object.keys(PRESETS).join(", ")));
-        process.exit(1);
+      const presetIds = opts.preset.split(",").map((p) => p.trim().toLowerCase()).filter(Boolean);
+      const collected = new Set<string>();
+      for (const id of presetIds) {
+        const presetGuardrails = PRESETS[id];
+        if (!presetGuardrails) {
+          console.error(chalk.red("Unknown preset:") + " " + id);
+          console.error(chalk.gray("Available: " + Object.keys(PRESETS).join(", ")));
+          process.exit(1);
+        }
+        for (const g of presetGuardrails) collected.add(g);
       }
-      names = presetNames;
+      names = [...collected];
     }
     // If last arg looks like a path, use it (backward compat: add name .)
     // --path takes precedence when explicitly provided (opts.path !== ".")

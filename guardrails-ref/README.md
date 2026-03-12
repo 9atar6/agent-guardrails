@@ -26,12 +26,18 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 
 | Command | Description |
 |---------|-------------|
-| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, JetBrains |
+| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure IDEs |
+| `npx guardrails-ref init --preset default [path]` | Add preset instead of single example (e.g. default, security) |
 | `npx guardrails-ref init --minimal [path]` | Create `.agents/guardrails/` only (no example, no setup) |
 | `npx guardrails-ref init --user` | Create `~/.agents/guardrails/` (user-level; setup is project-specific) |
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
-| `npx guardrails-ref add --preset default` | Add default preset (no-plaintext-secrets, no-destructive-commands, no-new-deps-without-approval, require-commit-approval) |
-| `npx guardrails-ref add --preset security` | Add security preset (8 guardrails) |
+| `npx guardrails-ref add --preset default` | Add default preset (4 guardrails) |
+| `npx guardrails-ref add --preset default,frontend` | Add multiple presets (comma-separated) |
+| `npx guardrails-ref add --preset security` | Add security preset (9 guardrails) |
+| `npx guardrails-ref add --preset quality` | Add quality preset (8 guardrails) |
+| `npx guardrails-ref add --preset frontend` | Add frontend preset (3 guardrails) |
+| `npx guardrails-ref add --preset api` | Add API preset (4 guardrails) |
+| `npx guardrails-ref add --preset production` | Add production preset (6 guardrails) |
 | `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
 | `npx guardrails-ref remove <name> --user` or `remove <name> ~` | Remove from user-level |

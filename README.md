@@ -2,7 +2,7 @@
 
 A simple, open format for defining constraints — what AI coding agents must NOT do — complementing [Agent Skills](https://agentskills.io) which define capabilities.
 
-[![npm version](https://img.shields.io/npm/v/guardrails-ref.svg)](https://www.npmjs.com/package/guardrails-ref)
+**[→ agentguardrails.dev](https://agentguardrails.dev)** · [![npm version](https://img.shields.io/npm/v/guardrails-ref.svg)](https://www.npmjs.com/package/guardrails-ref)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Why Agent Guardrails?
@@ -37,9 +37,24 @@ This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and
 
 Use `npx guardrails-ref init --minimal` to create `.agents/guardrails/` only (no example, no setup).
 
+Use `npx guardrails-ref init --preset default` to add the default preset (4 guardrails) instead of just no-plaintext-secrets.
+
 Use `npx guardrails-ref init --user` to create `~/.agents/guardrails/` (user-level; setup is project-specific).
 
 > **Note:** IDEs don't yet recognize guardrails natively. The `init` and `setup` commands add a rule so the AI reads your guardrails. Once IDEs add support, this won't be needed.
+
+### Recommended for most projects
+
+```bash
+npx guardrails-ref add --preset default    # 4 essentials
+npx guardrails-ref add --preset frontend  # For web apps: accessibility, i18n, no inline styles
+```
+
+Or combine presets in one command:
+
+```bash
+npx guardrails-ref add --preset default,frontend
+```
 
 ### Add more guardrails
 
@@ -54,8 +69,10 @@ npx guardrails-ref add no-raw-sql no-magic-numbers database-migrations rate-limi
 Or add a preset:
 
 ```bash
-npx guardrails-ref add --preset default    # no-plaintext-secrets, no-destructive-commands, no-new-deps-without-approval, require-commit-approval
-npx guardrails-ref add --preset security   # 8 security-focused guardrails
+npx guardrails-ref add --preset default    # 4 essentials
+npx guardrails-ref add --preset security   # 9 security guardrails
+npx guardrails-ref add --preset quality    # 8 code quality guardrails
+npx guardrails-ref add --preset default,frontend   # Multiple presets at once
 ```
 
 ### User-level guardrails
@@ -123,7 +140,7 @@ See `examples/pre-commit/README.md` for pre-commit, Husky, or npm script setup.
 |----------|-------------|
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 25 reference guardrails |
+| [Examples](examples/) | 30 reference guardrails |
 
 ## Example guardrails
 

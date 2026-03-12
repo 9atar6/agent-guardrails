@@ -37,3 +37,20 @@ test("runInit: full init creates example and runs setup", () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("runInit --preset default: adds preset guardrails", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-init-preset-"));
+  const origLog = console.log;
+  console.log = () => {};
+  try {
+    const result = runInit(dir, false, false, "default");
+    assert.ok(existsSync(join(dir, ".agents", "guardrails")));
+    for (const name of ["no-plaintext-secrets", "no-destructive-commands", "no-new-deps-without-approval", "require-commit-approval"]) {
+      assert.ok(existsSync(join(dir, ".agents", "guardrails", name, "GUARDRAIL.md")), `Expected ${name}`);
+    }
+    assert.ok(result.exampleCreated || result.setupDone);
+  } finally {
+    console.log = origLog;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

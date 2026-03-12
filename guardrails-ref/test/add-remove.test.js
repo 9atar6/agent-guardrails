@@ -141,6 +141,21 @@ test("add CLI: backward compat add name path", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+test("add CLI: multiple presets in one command", () => {
+  const dir = mkdtempSync(join(tmpdir(), "guardrails-multi-preset-"));
+  const r = spawnSync("node", [cli, "add", "--preset", "default,frontend", "--path", dir], {
+    encoding: "utf-8",
+  });
+  assert.strictEqual(r.status, 0, "add --preset default,frontend should succeed");
+  const defaultGuardrails = ["no-plaintext-secrets", "no-destructive-commands", "no-new-deps-without-approval", "require-commit-approval"];
+  const frontendGuardrails = ["require-accessibility", "no-inline-styles", "no-hardcoded-user-facing-strings"];
+  for (const name of [...defaultGuardrails, ...frontendGuardrails]) {
+    const path = join(dir, ".agents", "guardrails", name, "GUARDRAIL.md");
+    assert.ok(existsSync(path), `Expected ${name} from preset`);
+  }
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test("runRemove: nonexistent guardrail returns false", () => {
   const dir = mkdtempSync(join(tmpdir(), "guardrails-remove-test-"));
   const origLog = console.log;

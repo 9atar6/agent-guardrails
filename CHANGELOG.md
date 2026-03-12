@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-03-12
+
+### Added
+
+- **5 new guardrails** — High-impact examples for developers:
+  - **require-accessibility** — Alt text, ARIA, keyboard support, contrast for UI
+  - **require-api-resilience** — Timeouts, retries, error handling for external API calls
+  - **require-documentation-updates** — Update README, docs, changelog when changing behavior
+  - **no-breaking-changes-without-versioning** — Semver bump, deprecation, migration path for public APIs
+  - **no-path-traversal** — Validate user-controlled paths; reject `..`, symlinks outside base
+- **4 new presets** — quality (8), frontend (3), api (4), production (6); security preset now includes no-path-traversal (9 total)
+- **Multiple presets** — `add --preset default,frontend` adds both presets in one command
+- **init --preset** — Add a preset at init: `init --preset default` or `init --preset security`
+
+### Changed
+
+- **Website** — Official site at [agentguardrails.dev](https://agentguardrails.dev)
+- **README** — Added prominent website link
+- **package.json** — Updated homepage to agentguardrails.dev
+
 ## [1.2.4] - 2026-03-12
 
 ### Added
