@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-03-12
+
+### Added
+
+- **Windsurf, Continue, JetBrains** — `setup` now configures 4 additional IDEs:
+  - **Windsurf** — via `.windsurfrules`
+  - **Continue** — via `.continue/rules/agent-guardrails.md`
+  - **JetBrains AI Assistant** — via `.aiassistant/rules/agent-guardrails.md`
+  - **JetBrains Junie** — via `.junie/guidelines.md`
+- **setup --pre-commit** — Add guardrails check to pre-commit hook (Husky or pre-commit)
+- **add --preset** — Add preset guardrail sets: `add --preset default` or `add --preset security`
+- **diff command** — Show diff between installed guardrails and latest templates (alias for `upgrade --dry-run --diff`)
+- **validate --fix** — Apply trivial fixes (trim trailing whitespace, normalize trailing newline)
+
+### Changed
+
+- **setup --ide** — Now accepts: cursor, claude, copilot, windsurf, continue, jetbrains, junie, or auto
+- **setup --check** — Displays status for all 7 supported IDEs
+
 ## [1.2.3] - 2026-03-11
 
 ### Changed

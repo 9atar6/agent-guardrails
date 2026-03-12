@@ -16,7 +16,7 @@ AI coding agents (Cursor, Claude Code, etc.) don't remember across sessions. Gua
 npx guardrails-ref init
 ```
 
-Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor, Claude Code, and VS Code Copilot to read your guardrails. No global install needed.
+Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, and JetBrains to read your guardrails. No global install needed.
 
 > **Note:** IDEs don't yet recognize guardrails natively. The `setup` command adds a rule so the AI reads them. Once IDEs add support, this won't be needed.
 
@@ -26,23 +26,27 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 
 | Command | Description |
 |---------|-------------|
-| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor, Claude Code, and VS Code Copilot |
+| `npx guardrails-ref init [path]` | Create `.agents/guardrails/`, add no-plaintext-secrets, configure Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, JetBrains |
 | `npx guardrails-ref init --minimal [path]` | Create `.agents/guardrails/` only (no example, no setup) |
 | `npx guardrails-ref init --user` | Create `~/.agents/guardrails/` (user-level; setup is project-specific) |
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
+| `npx guardrails-ref add --preset default` | Add default preset (no-plaintext-secrets, no-destructive-commands, no-new-deps-without-approval, require-commit-approval) |
+| `npx guardrails-ref add --preset security` | Add security preset (8 guardrails) |
 | `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
 | `npx guardrails-ref remove <name> --user` or `remove <name> ~` | Remove from user-level |
-| `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor, Claude Code, and VS Code Copilot |
+| `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, JetBrains |
 | `npx guardrails-ref setup --remove [path]` | Remove the guardrail rule from IDE configs |
-| `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, or `auto` (only configured IDEs) |
+| `npx guardrails-ref setup --pre-commit [path]` | Add guardrails check to pre-commit hook (Husky or pre-commit) |
+| `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, `windsurf`, `continue`, `jetbrains`, `junie`, or `auto` |
 | `npx guardrails-ref setup --dry-run [path]` | Show what would be added/removed without writing files |
 | `npx guardrails-ref setup --check [path]` | Show which IDEs are configured and whether they have the rule |
-| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings) |
+| `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings, `--fix` to apply trivial fixes) |
 | `npx guardrails-ref validate --user` or `validate ~` | Validate user-level guardrails |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |
 | `npx guardrails-ref upgrade --user` or `upgrade ~` | Upgrade user-level guardrails |
+| `npx guardrails-ref diff [path]` | Show diff between installed guardrails and latest templates |
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
 | `npx guardrails-ref list --user` or `list ~` | List user-level guardrails |
 | `npx guardrails-ref why <name>` | Show guardrail template content (e.g. `why no-destructive-commands`) |
@@ -52,6 +56,10 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 - **Cursor** — via `.cursor/rules/` or `.cursorrules`
 - **Claude Code** — via `.claude/instructions.md`
 - **VS Code Copilot** — via `.github/copilot-instructions.md`
+- **Windsurf** — via `.windsurfrules`
+- **Continue** — via `.continue/rules/agent-guardrails.md`
+- **JetBrains AI Assistant** — via `.aiassistant/rules/agent-guardrails.md`
+- **JetBrains Junie** — via `.junie/guidelines.md`
 
 ## CI/CD
 

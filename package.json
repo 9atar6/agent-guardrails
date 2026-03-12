@@ -1,6 +1,6 @@
 {
   "name": "agent-guardrails",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "description": "Agent Guardrails — a simple, open format for AI agent constraints",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "add": "node guardrails-ref/dist/cli.js add",
     "remove": "node guardrails-ref/dist/cli.js remove",
     "upgrade": "node guardrails-ref/dist/cli.js upgrade .",
+    "diff": "node guardrails-ref/dist/cli.js diff .",
     "why": "node guardrails-ref/dist/cli.js why",
     "build": "npm run build --prefix guardrails-ref",
     "test": "npm test --prefix guardrails-ref"

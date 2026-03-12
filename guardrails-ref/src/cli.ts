@@ -5,15 +5,16 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { program } from "commander";
 import chalk from "chalk";
-import { validatePath, listGuardrails } from "./validate.js";
-import { runSetup, runSetupRemove, runSetupCheck } from "./setup.js";
+import { validatePath, listGuardrails, fixGuardrailFile } from "./validate.js";
+import { runSetup, runSetupRemove, runSetupCheck, type IdeName } from "./setup.js";
+import { runSetupPreCommit } from "./pre-commit.js";
 import { runInit } from "./init.js";
 import { runAdd } from "./add.js";
 import { runWhy } from "./why.js";
 import { runRemove } from "./remove.js";
 import { runUpgrade } from "./upgrade.js";
 import { resolveGuardrailsDir } from "./path-utils.js";
-import { TEMPLATE_NAMES } from "./templates.js";
+import { TEMPLATE_NAMES, PRESETS } from "./templates.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,11 +27,26 @@ program
 
 function runValidate(
   path: string,
-  options: { json?: boolean; strict?: boolean; minimal?: boolean; user?: boolean }
+  options: { json?: boolean; strict?: boolean; minimal?: boolean; user?: boolean; fix?: boolean }
 ): void {
   const userScope = options.user ?? path === "~";
   const pathToScan = userScope ? resolveGuardrailsDir("~", true) : path;
-  const result = validatePath(pathToScan);
+  let result = validatePath(pathToScan);
+
+  if (options.fix) {
+    const fixed: string[] = [];
+    for (const r of result.results) {
+      if (r.success && r.path) {
+        if (fixGuardrailFile(r.path)) fixed.push(r.path);
+      }
+    }
+    if (fixed.length > 0) {
+      result = validatePath(pathToScan);
+      if (!options.json && !options.minimal) {
+        for (const p of fixed) console.log(chalk.green("✓") + " Fixed " + p);
+      }
+    }
+  }
   const hasWarnings = result.results.some((r) => r.warnings.length > 0);
   const hasErrors = result.invalid > 0;
   const strictFail = options.strict && hasWarnings;
@@ -106,7 +122,8 @@ program
   .option("-j, --json", "Output as JSON")
   .option("-s, --strict", "Fail on warnings (CI mode)")
   .option("-u, --user", "Use user-level guardrails (~/.agents/guardrails/)")
-  .action(function (this: { opts: () => { json?: boolean; strict?: boolean; user?: boolean } }, path?: string) {
+  .option("-f, --fix", "Apply trivial fixes (trim trailing whitespace, normalize newline)")
+  .action(function (this: { opts: () => { json?: boolean; strict?: boolean; user?: boolean; fix?: boolean } }, path?: string) {
     const opts = this.opts();
     runValidate(path ?? ".", opts);
   });
@@ -134,17 +151,28 @@ program
   .command("add [names...]")
   .description("Add example guardrail(s) by name — pass multiple to add several at once")
   .option("-l, --list", "List available guardrails to add")
+  .option("--preset <name>", "Add preset: default or security")
   .option("-p, --path <path>", "Target directory", ".")
   .option("-u, --user", "Add to user-level ~/.agents/guardrails/")
-  .action(function (this: { opts: () => { list?: boolean; path?: string; user?: boolean } }, names: string[] = []) {
+  .action(function (this: { opts: () => { list?: boolean; preset?: string; path?: string; user?: boolean } }, names: string[] = []) {
     const opts = this.opts();
     if (opts.list) {
       console.log("Available guardrails:");
       for (const n of TEMPLATE_NAMES) {
         console.log("  " + n);
       }
-      console.log("\nUsage: npx guardrails-ref add <name> [name2 ...] [path]");
+      console.log("\nPresets: add --preset default | add --preset security");
+      console.log("Usage: npx guardrails-ref add <name> [name2 ...] [path]");
       return;
+    }
+    if (opts.preset) {
+      const presetNames = PRESETS[opts.preset.toLowerCase()];
+      if (!presetNames) {
+        console.error(chalk.red("Unknown preset:") + " " + opts.preset);
+        console.error(chalk.gray("Available: " + Object.keys(PRESETS).join(", ")));
+        process.exit(1);
+      }
+      names = presetNames;
     }
     // If last arg looks like a path, use it (backward compat: add name .)
     // --path takes precedence when explicitly provided (opts.path !== ".")
@@ -192,6 +220,17 @@ program
   });
 
 program
+  .command("diff [path]")
+  .description("Show diff between installed guardrails and latest templates (alias for upgrade --dry-run --diff)")
+  .option("-u, --user", "Diff user-level ~/.agents/guardrails/")
+  .action(function (this: { opts: () => { user?: boolean } }, path?: string) {
+    const opts = this.opts();
+    const p = path ?? ".";
+    const userScope = opts.user ?? p === "~";
+    runUpgrade(userScope ? "~" : p, true, true, userScope);
+  });
+
+program
   .command("remove <name> [path]")
   .description("Remove a guardrail from .agents/guardrails/")
   .option("-u, --user", "Remove from user-level ~/.agents/guardrails/")
@@ -205,35 +244,46 @@ program
 
 program
   .command("setup [path]")
-  .description("Add the guardrail rule to Cursor, Claude Code, and VS Code Copilot (required until IDEs support guardrails natively)")
+  .description("Add the guardrail rule to Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, JetBrains (required until IDEs support guardrails natively)")
   .option("-r, --remove", "Remove the guardrail rule from IDE configs")
-  .option("-i, --ide <name>", "Target IDE: cursor, claude, copilot, or auto (only configured IDEs)")
+  .option("-p, --pre-commit", "Add guardrails check to pre-commit hook (Husky or pre-commit)")
+  .option("-i, --ide <name>", "Target IDE: cursor, claude, copilot, windsurf, continue, jetbrains, junie, or auto")
   .option("-n, --dry-run", "Show what would be added/removed without writing files")
   .option("-c, --check", "Show which IDEs are configured and whether they have the rule")
-  .action(function (this: { opts: () => { remove?: boolean; ide?: string; dryRun?: boolean; check?: boolean } }, path?: string) {
+  .action(function (this: { opts: () => { remove?: boolean; preCommit?: boolean; ide?: string; dryRun?: boolean; check?: boolean } }, path?: string) {
     const p = path ?? ".";
     const opts = this.opts();
+    if (opts.preCommit) {
+      const result = runSetupPreCommit(p, opts.remove ?? false, opts.dryRun ?? false);
+      console.log(result.message);
+      return;
+    }
     if (opts.check) {
       const check = runSetupCheck(p);
       const fmt = (name: string, r: { configured: boolean; hasRule: boolean }) => {
         const status = !r.configured ? "not configured" : r.hasRule ? "has rule" : "no rule";
         const color = !r.configured ? chalk.gray : r.hasRule ? chalk.green : chalk.yellow;
-        console.log(`  ${name.padEnd(12)} ${color(status)}`);
+        console.log(`  ${name.padEnd(22)} ${color(status)}`);
       };
       console.log("IDE setup status:");
       fmt("Cursor", check.cursor);
       fmt("Claude Code", check.claude);
       fmt("VS Code Copilot", check.copilot);
+      fmt("Windsurf", check.windsurf);
+      fmt("Continue", check.continue);
+      fmt("JetBrains AI Assistant", check.jetbrains);
+      fmt("JetBrains Junie", check.junie);
       return;
     }
-    const ide = opts.ide as "cursor" | "claude" | "copilot" | "auto" | undefined;
-    if (ide && !["cursor", "claude", "copilot", "auto"].includes(ide)) {
-      console.error(chalk.red("Invalid --ide. Use: cursor, claude, copilot, or auto"));
+    const validIdes = ["cursor", "claude", "copilot", "windsurf", "continue", "jetbrains", "junie", "auto"];
+    const ide = opts.ide as IdeName | "auto" | undefined;
+    if (ide && !validIdes.includes(ide)) {
+      console.error(chalk.red("Invalid --ide. Use: cursor, claude, copilot, windsurf, continue, jetbrains, junie, or auto"));
       process.exit(1);
     }
     const result = opts.remove
-      ? runSetupRemove(p, ide, opts.dryRun)
-      : runSetup(p, ide, opts.dryRun);
+      ? runSetupRemove(p, ide as IdeName | "all" | "auto" | undefined, opts.dryRun)
+      : runSetup(p, ide as IdeName | "all" | "auto" | undefined, opts.dryRun);
     console.log(result.message);
   });
 

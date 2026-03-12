@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from "fs";
+import { readdirSync, statSync, readFileSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 import { parseGuardrailFile, type ParseResult, type ParsedGuardrail } from "./parse.js";
 
@@ -107,6 +107,22 @@ export function validatePath(inputPath: string): ValidateResult {
     total: valid + invalid,
     results,
   };
+}
+
+/**
+ * Apply trivial fixes to a guardrail file: trim trailing whitespace per line, ensure single trailing newline.
+ * Returns true if file was modified.
+ */
+export function fixGuardrailFile(filePath: string): boolean {
+  const content = readFileSync(filePath, "utf-8");
+  const lines = content.split("\n");
+  const fixed = lines.map((l) => l.replace(/\s+$/, "")).join("\n").trimEnd();
+  const normalized = fixed + "\n";
+  if (content !== normalized) {
+    writeFileSync(filePath, normalized);
+    return true;
+  }
+  return false;
 }
 
 export function listGuardrails(inputPath: string): Array<{ path: string; name: string; description: string }> {

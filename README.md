@@ -33,7 +33,7 @@ From your project directory:
 npx guardrails-ref init
 ```
 
-This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor, Claude Code, and VS Code Copilot to read your guardrails.
+This creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and configures Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, and JetBrains to read your guardrails.
 
 Use `npx guardrails-ref init --minimal` to create `.agents/guardrails/` only (no example, no setup).
 
@@ -51,6 +51,13 @@ npx guardrails-ref add no-sudo-commands require-tests no-inline-styles
 npx guardrails-ref add no-raw-sql no-magic-numbers database-migrations rate-limiting no-console-in-production
 ```
 
+Or add a preset:
+
+```bash
+npx guardrails-ref add --preset default    # no-plaintext-secrets, no-destructive-commands, no-new-deps-without-approval, require-commit-approval
+npx guardrails-ref add --preset security   # 8 security-focused guardrails
+```
+
 ### User-level guardrails
 
 Guardrails can live in `~/.agents/guardrails/` (user-level) or `.agents/guardrails/` (project-level). Use `--user` or path `~`:
@@ -66,6 +73,7 @@ npx guardrails-ref validate ~
 
 ```bash
 npx guardrails-ref validate .
+npx guardrails-ref validate . --fix    # Apply trivial fixes (whitespace, newline)
 npx guardrails-ref check .     # Minimal output (CI)
 npx guardrails-ref list .
 npx guardrails-ref validate . --json   # JSON output for scripting
@@ -83,9 +91,10 @@ npx guardrails-ref remove no-console-in-production
 
 ```bash
 npx guardrails-ref setup --remove      # Undo setup
+npx guardrails-ref setup --pre-commit  # Add guardrails check to pre-commit (Husky or pre-commit)
 npx guardrails-ref setup --dry-run     # Preview what would be added/removed
 npx guardrails-ref setup --ide auto    # Only configure IDEs that already have config
-npx guardrails-ref setup --ide cursor  # Target one IDE: cursor, claude, or copilot
+npx guardrails-ref setup --ide cursor  # Target one IDE: cursor, claude, copilot, windsurf, continue, jetbrains, junie
 npx guardrails-ref setup --check       # Show which IDEs are configured
 ```
 
@@ -95,6 +104,7 @@ npx guardrails-ref setup --check       # Show which IDEs are configured
 npx guardrails-ref upgrade              # Update to latest templates
 npx guardrails-ref upgrade --dry-run    # Preview changes
 npx guardrails-ref upgrade --dry-run --diff  # Preview with diff
+npx guardrails-ref diff                 # Show diff between installed and templates
 ```
 
 ### Show guardrail content

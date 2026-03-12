@@ -88,3 +88,23 @@ function getTemplates(): Record<string, string> {
 
 export const TEMPLATES = getTemplates();
 export const TEMPLATE_NAMES = Object.keys(TEMPLATES);
+
+/** Preset names to guardrail names. */
+export const PRESETS: Record<string, string[]> = {
+  default: [
+    "no-plaintext-secrets",
+    "no-destructive-commands",
+    "no-new-deps-without-approval",
+    "require-commit-approval",
+  ],
+  security: [
+    "no-plaintext-secrets",
+    "no-placeholder-credentials",
+    "require-access-control",
+    "privilege-boundaries",
+    "no-eval-or-dynamic-code",
+    "no-hardcoded-urls",
+    "no-raw-sql",
+    "no-unsafe-env-assumptions",
+  ],
+};

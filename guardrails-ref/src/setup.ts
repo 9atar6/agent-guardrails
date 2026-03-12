@@ -7,12 +7,23 @@ const GUARDRAIL_RULE =
 
 const GUARDRAIL_RULE_MARKER = "You MUST read and follow all constraints in .agents/guardrails";
 
-export type IdeName = "cursor" | "claude" | "copilot";
+export type IdeName =
+  | "cursor"
+  | "claude"
+  | "copilot"
+  | "windsurf"
+  | "continue"
+  | "jetbrains"
+  | "junie";
 
 export interface SetupResult {
   cursor: boolean;
   claude: boolean;
   copilot: boolean;
+  windsurf: boolean;
+  continue: boolean;
+  jetbrains: boolean;
+  junie: boolean;
   message: string;
 }
 
@@ -20,6 +31,10 @@ export interface SetupCheckResult {
   cursor: { configured: boolean; hasRule: boolean };
   claude: { configured: boolean; hasRule: boolean };
   copilot: { configured: boolean; hasRule: boolean };
+  windsurf: { configured: boolean; hasRule: boolean };
+  continue: { configured: boolean; hasRule: boolean };
+  jetbrains: { configured: boolean; hasRule: boolean };
+  junie: { configured: boolean; hasRule: boolean };
 }
 
 /**
@@ -115,6 +130,88 @@ function setupCopilot(root: string): boolean {
   return false;
 }
 
+function setupWindsurf(root: string): boolean {
+  const windsurfFile = resolve(root, ".windsurfrules");
+  const ruleBlock = `\n\n${GUARDRAIL_RULE}\n`;
+
+  if (existsSync(windsurfFile)) {
+    const existing = readFileSync(windsurfFile, "utf-8");
+    if (!hasRule(existing)) {
+      const appended = existing.trimEnd() + ruleBlock;
+      writeFileSync(windsurfFile, appended);
+      return true;
+    }
+  } else {
+    writeFileSync(windsurfFile, GUARDRAIL_RULE + "\n");
+    return true;
+  }
+  return false;
+}
+
+function setupContinue(root: string): boolean {
+  const continueRulesDir = resolve(root, ".continue", "rules");
+  const continueRuleFile = resolve(continueRulesDir, "agent-guardrails.md");
+  const continueRuleContent = `# Agent Guardrails\n\n${GUARDRAIL_RULE}\n`;
+
+  if (existsSync(continueRuleFile)) {
+    const existing = readFileSync(continueRuleFile, "utf-8");
+    if (!hasRule(existing)) {
+      writeFileSync(continueRuleFile, continueRuleContent);
+      return true;
+    }
+  } else {
+    if (!existsSync(continueRulesDir)) {
+      mkdirSync(continueRulesDir, { recursive: true });
+    }
+    writeFileSync(continueRuleFile, continueRuleContent);
+    return true;
+  }
+  return false;
+}
+
+function setupJetbrains(root: string): boolean {
+  const jetbrainsRulesDir = resolve(root, ".aiassistant", "rules");
+  const jetbrainsRuleFile = resolve(jetbrainsRulesDir, "agent-guardrails.md");
+  const jetbrainsRuleContent = `# Agent Guardrails\n\n${GUARDRAIL_RULE}\n`;
+
+  if (existsSync(jetbrainsRuleFile)) {
+    const existing = readFileSync(jetbrainsRuleFile, "utf-8");
+    if (!hasRule(existing)) {
+      writeFileSync(jetbrainsRuleFile, jetbrainsRuleContent);
+      return true;
+    }
+  } else {
+    if (!existsSync(jetbrainsRulesDir)) {
+      mkdirSync(jetbrainsRulesDir, { recursive: true });
+    }
+    writeFileSync(jetbrainsRuleFile, jetbrainsRuleContent);
+    return true;
+  }
+  return false;
+}
+
+function setupJunie(root: string): boolean {
+  const junieDir = resolve(root, ".junie");
+  const junieFile = resolve(junieDir, "guidelines.md");
+  const ruleBlock = `\n\n${GUARDRAIL_RULE}\n`;
+
+  if (existsSync(junieFile)) {
+    const existing = readFileSync(junieFile, "utf-8");
+    if (!hasRule(existing)) {
+      const appended = existing.trimEnd() + ruleBlock;
+      writeFileSync(junieFile, appended);
+      return true;
+    }
+  } else {
+    if (!existsSync(junieDir)) {
+      mkdirSync(junieDir, { recursive: true });
+    }
+    writeFileSync(junieFile, GUARDRAIL_RULE + "\n");
+    return true;
+  }
+  return false;
+}
+
 function removeCursor(root: string): boolean {
   const cursorRulesDir = resolve(root, ".cursor", "rules");
   const cursorRuleFile = resolve(cursorRulesDir, "agent-guardrails.md");
@@ -177,6 +274,62 @@ function removeCopilot(root: string): boolean {
   return false;
 }
 
+function removeWindsurf(root: string): boolean {
+  const windsurfFile = resolve(root, ".windsurfrules");
+
+  if (existsSync(windsurfFile)) {
+    const existing = readFileSync(windsurfFile, "utf-8");
+    if (hasRule(existing)) {
+      const cleaned = removeRuleFromContent(existing);
+      if (cleaned) {
+        writeFileSync(windsurfFile, cleaned + "\n");
+      } else {
+        rmSync(windsurfFile);
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+function removeContinue(root: string): boolean {
+  const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
+
+  if (existsSync(continueRuleFile)) {
+    rmSync(continueRuleFile);
+    return true;
+  }
+  return false;
+}
+
+function removeJetbrains(root: string): boolean {
+  const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
+
+  if (existsSync(jetbrainsRuleFile)) {
+    rmSync(jetbrainsRuleFile);
+    return true;
+  }
+  return false;
+}
+
+function removeJunie(root: string): boolean {
+  const junieFile = resolve(root, ".junie", "guidelines.md");
+
+  if (existsSync(junieFile)) {
+    const existing = readFileSync(junieFile, "utf-8");
+    if (hasRule(existing)) {
+      const cleaned = removeRuleFromContent(existing);
+      if (cleaned) {
+        writeFileSync(junieFile, cleaned + "\n");
+      } else {
+        rmSync(junieFile);
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 function checkCursor(root: string): { configured: boolean; hasRule: boolean } {
   const cursorRuleFile = resolve(root, ".cursor", "rules", "agent-guardrails.md");
   const cursorrulesPath = resolve(root, ".cursorrules");
@@ -212,6 +365,46 @@ function checkCopilot(root: string): { configured: boolean; hasRule: boolean } {
   return { configured: false, hasRule: false };
 }
 
+function checkWindsurf(root: string): { configured: boolean; hasRule: boolean } {
+  const windsurfFile = resolve(root, ".windsurfrules");
+
+  if (existsSync(windsurfFile)) {
+    const content = readFileSync(windsurfFile, "utf-8");
+    return { configured: true, hasRule: hasRule(content) };
+  }
+  return { configured: false, hasRule: false };
+}
+
+function checkContinue(root: string): { configured: boolean; hasRule: boolean } {
+  const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
+
+  if (existsSync(continueRuleFile)) {
+    const content = readFileSync(continueRuleFile, "utf-8");
+    return { configured: true, hasRule: hasRule(content) };
+  }
+  return { configured: false, hasRule: false };
+}
+
+function checkJetbrains(root: string): { configured: boolean; hasRule: boolean } {
+  const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
+
+  if (existsSync(jetbrainsRuleFile)) {
+    const content = readFileSync(jetbrainsRuleFile, "utf-8");
+    return { configured: true, hasRule: hasRule(content) };
+  }
+  return { configured: false, hasRule: false };
+}
+
+function checkJunie(root: string): { configured: boolean; hasRule: boolean } {
+  const junieFile = resolve(root, ".junie", "guidelines.md");
+
+  if (existsSync(junieFile)) {
+    const content = readFileSync(junieFile, "utf-8");
+    return { configured: true, hasRule: hasRule(content) };
+  }
+  return { configured: false, hasRule: false };
+}
+
 /**
  * Check which IDEs are configured and whether they have the guardrail rule.
  */
@@ -221,6 +414,10 @@ export function runSetupCheck(projectPath: string = "."): SetupCheckResult {
     cursor: checkCursor(root),
     claude: checkClaude(root),
     copilot: checkCopilot(root),
+    windsurf: checkWindsurf(root),
+    continue: checkContinue(root),
+    jetbrains: checkJetbrains(root),
+    junie: checkJunie(root),
   };
 }
 
@@ -262,6 +459,68 @@ function wouldRemoveCopilot(root: string): boolean {
   return existsSync(copilotFile) && hasRule(readFileSync(copilotFile, "utf-8"));
 }
 
+function wouldSetupWindsurf(root: string): boolean {
+  const windsurfFile = resolve(root, ".windsurfrules");
+  if (existsSync(windsurfFile)) return !hasRule(readFileSync(windsurfFile, "utf-8"));
+  return true;
+}
+
+function wouldSetupContinue(root: string): boolean {
+  const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
+  if (existsSync(continueRuleFile)) return !hasRule(readFileSync(continueRuleFile, "utf-8"));
+  return true;
+}
+
+function wouldSetupJetbrains(root: string): boolean {
+  const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
+  if (existsSync(jetbrainsRuleFile)) return !hasRule(readFileSync(jetbrainsRuleFile, "utf-8"));
+  return true;
+}
+
+function wouldSetupJunie(root: string): boolean {
+  const junieFile = resolve(root, ".junie", "guidelines.md");
+  if (existsSync(junieFile)) return !hasRule(readFileSync(junieFile, "utf-8"));
+  return true;
+}
+
+function wouldRemoveWindsurf(root: string): boolean {
+  const windsurfFile = resolve(root, ".windsurfrules");
+  return existsSync(windsurfFile) && hasRule(readFileSync(windsurfFile, "utf-8"));
+}
+
+function wouldRemoveContinue(root: string): boolean {
+  return existsSync(resolve(root, ".continue", "rules", "agent-guardrails.md"));
+}
+
+function wouldRemoveJetbrains(root: string): boolean {
+  return existsSync(resolve(root, ".aiassistant", "rules", "agent-guardrails.md"));
+}
+
+function wouldRemoveJunie(root: string): boolean {
+  const junieFile = resolve(root, ".junie", "guidelines.md");
+  return existsSync(junieFile) && hasRule(readFileSync(junieFile, "utf-8"));
+}
+
+const ALL_IDES: IdeName[] = [
+  "cursor",
+  "claude",
+  "copilot",
+  "windsurf",
+  "continue",
+  "jetbrains",
+  "junie",
+];
+
+const IDE_LABELS: Record<IdeName, string> = {
+  cursor: "Cursor",
+  claude: "Claude Code",
+  copilot: "VS Code Copilot",
+  windsurf: "Windsurf",
+  continue: "Continue",
+  jetbrains: "JetBrains AI Assistant",
+  junie: "JetBrains Junie",
+};
+
 export function runSetup(
   projectPath: string = ".",
   ideFilter?: IdeName | "all" | "auto",
@@ -272,50 +531,69 @@ export function runSetup(
 
   if (ideFilter === "auto") {
     const check = runSetupCheck(root);
-    ides = (["cursor", "claude", "copilot"] as IdeName[]).filter(
-      (ide) => check[ide as keyof SetupCheckResult].configured
-    );
+    ides = ALL_IDES.filter((ide) => check[ide].configured);
   } else if (ideFilter && ideFilter !== "all") {
     ides = [ideFilter as IdeName];
   } else {
-    ides = ["cursor", "claude", "copilot"] as IdeName[];
+    ides = [...ALL_IDES];
   }
 
-  let cursorDone = false;
-  let claudeDone = false;
-  let copilotDone = false;
+  const setupFns: Record<IdeName, (r: string) => boolean> = {
+    cursor: setupCursor,
+    claude: setupClaude,
+    copilot: setupCopilot,
+    windsurf: setupWindsurf,
+    continue: setupContinue,
+    jetbrains: setupJetbrains,
+    junie: setupJunie,
+  };
 
-  if (dryRun) {
-    if (ides.includes("cursor")) cursorDone = wouldSetupCursor(root);
-    if (ides.includes("claude")) claudeDone = wouldSetupClaude(root);
-    if (ides.includes("copilot")) copilotDone = wouldSetupCopilot(root);
-    const messages: string[] = [];
-    if (cursorDone) messages.push(chalk.gray("[dry-run] Would add guardrail rule for Cursor"));
-    if (claudeDone) messages.push(chalk.gray("[dry-run] Would add guardrail rule for Claude Code"));
-    if (copilotDone) messages.push(chalk.gray("[dry-run] Would add guardrail rule for VS Code Copilot"));
-    if (messages.length === 0) {
-      messages.push(chalk.yellow("Guardrail rule already present in all target IDEs. Nothing to do."));
-    }
-    return { cursor: cursorDone, claude: claudeDone, copilot: copilotDone, message: messages.join("\n") };
+  const wouldSetupFns: Record<IdeName, (r: string) => boolean> = {
+    cursor: wouldSetupCursor,
+    claude: wouldSetupClaude,
+    copilot: wouldSetupCopilot,
+    windsurf: wouldSetupWindsurf,
+    continue: wouldSetupContinue,
+    jetbrains: wouldSetupJetbrains,
+    junie: wouldSetupJunie,
+  };
+
+  const result: Record<IdeName, boolean> = {
+    cursor: false,
+    claude: false,
+    copilot: false,
+    windsurf: false,
+    continue: false,
+    jetbrains: false,
+    junie: false,
+  };
+
+  for (const ide of ides) {
+    result[ide] = dryRun ? wouldSetupFns[ide](root) : setupFns[ide](root);
   }
-
-  if (ides.includes("cursor")) cursorDone = setupCursor(root);
-  if (ides.includes("claude")) claudeDone = setupClaude(root);
-  if (ides.includes("copilot")) copilotDone = setupCopilot(root);
 
   const messages: string[] = [];
-  if (cursorDone) messages.push(chalk.green("✓") + " Added guardrail rule for Cursor");
-  if (claudeDone) messages.push(chalk.green("✓") + " Added guardrail rule for Claude Code");
-  if (copilotDone) messages.push(chalk.green("✓") + " Added guardrail rule for VS Code Copilot");
-
+  for (const ide of ides) {
+    if (result[ide]) {
+      messages.push(
+        dryRun
+          ? chalk.gray("[dry-run] Would add guardrail rule for " + IDE_LABELS[ide])
+          : chalk.green("✓") + " Added guardrail rule for " + IDE_LABELS[ide]
+      );
+    }
+  }
   if (messages.length === 0) {
-    messages.push(chalk.yellow("Guardrail rule already present in all configured IDEs."));
+    messages.push(
+      chalk.yellow(
+        dryRun
+          ? "Guardrail rule already present in all target IDEs. Nothing to do."
+          : "Guardrail rule already present in all configured IDEs."
+      )
+    );
   }
 
   return {
-    cursor: cursorDone,
-    claude: claudeDone,
-    copilot: copilotDone,
+    ...result,
     message: messages.join("\n"),
   };
 }
@@ -330,50 +608,63 @@ export function runSetupRemove(
 
   if (ideFilter === "auto") {
     const check = runSetupCheck(root);
-    ides = (["cursor", "claude", "copilot"] as IdeName[]).filter(
-      (ide) => check[ide as keyof SetupCheckResult].hasRule
-    );
+    ides = ALL_IDES.filter((ide) => check[ide].hasRule);
   } else if (ideFilter && ideFilter !== "all") {
     ides = [ideFilter as IdeName];
   } else {
-    ides = ["cursor", "claude", "copilot"] as IdeName[];
+    ides = [...ALL_IDES];
   }
 
-  let cursorDone = false;
-  let claudeDone = false;
-  let copilotDone = false;
+  const removeFns: Record<IdeName, (r: string) => boolean> = {
+    cursor: removeCursor,
+    claude: removeClaude,
+    copilot: removeCopilot,
+    windsurf: removeWindsurf,
+    continue: removeContinue,
+    jetbrains: removeJetbrains,
+    junie: removeJunie,
+  };
 
-  if (dryRun) {
-    if (ides.includes("cursor")) cursorDone = wouldRemoveCursor(root);
-    if (ides.includes("claude")) claudeDone = wouldRemoveClaude(root);
-    if (ides.includes("copilot")) copilotDone = wouldRemoveCopilot(root);
-    const messages: string[] = [];
-    if (cursorDone) messages.push(chalk.gray("[dry-run] Would remove guardrail rule from Cursor"));
-    if (claudeDone) messages.push(chalk.gray("[dry-run] Would remove guardrail rule from Claude Code"));
-    if (copilotDone) messages.push(chalk.gray("[dry-run] Would remove guardrail rule from VS Code Copilot"));
-    if (messages.length === 0) {
-      messages.push(chalk.yellow("Guardrail rule not found in any config files. Nothing to do."));
-    }
-    return { cursor: cursorDone, claude: claudeDone, copilot: copilotDone, message: messages.join("\n") };
+  const wouldRemoveFns: Record<IdeName, (r: string) => boolean> = {
+    cursor: wouldRemoveCursor,
+    claude: wouldRemoveClaude,
+    copilot: wouldRemoveCopilot,
+    windsurf: wouldRemoveWindsurf,
+    continue: wouldRemoveContinue,
+    jetbrains: wouldRemoveJetbrains,
+    junie: wouldRemoveJunie,
+  };
+
+  const result: Record<IdeName, boolean> = {
+    cursor: false,
+    claude: false,
+    copilot: false,
+    windsurf: false,
+    continue: false,
+    jetbrains: false,
+    junie: false,
+  };
+
+  for (const ide of ides) {
+    result[ide] = dryRun ? wouldRemoveFns[ide](root) : removeFns[ide](root);
   }
-
-  if (ides.includes("cursor")) cursorDone = removeCursor(root);
-  if (ides.includes("claude")) claudeDone = removeClaude(root);
-  if (ides.includes("copilot")) copilotDone = removeCopilot(root);
 
   const messages: string[] = [];
-  if (cursorDone) messages.push(chalk.green("✓") + " Removed guardrail rule from Cursor");
-  if (claudeDone) messages.push(chalk.green("✓") + " Removed guardrail rule from Claude Code");
-  if (copilotDone) messages.push(chalk.green("✓") + " Removed guardrail rule from VS Code Copilot");
-
+  for (const ide of ides) {
+    if (result[ide]) {
+      messages.push(
+        dryRun
+          ? chalk.gray("[dry-run] Would remove guardrail rule from " + IDE_LABELS[ide])
+          : chalk.green("✓") + " Removed guardrail rule from " + IDE_LABELS[ide]
+      );
+    }
+  }
   if (messages.length === 0) {
     messages.push(chalk.yellow("Guardrail rule not found in any config files."));
   }
 
   return {
-    cursor: cursorDone,
-    claude: claudeDone,
-    copilot: copilotDone,
+    ...result,
     message: messages.join("\n"),
   };
 }
