@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node: >=18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
-CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, check, upgrade, list, and why GUARDRAIL.md files.
+CLI for [Agent Guardrails](https://github.com/9atar6/agent-guardrails) — init, add, remove, setup, validate, check, upgrade, diff, list, why, scaffold, and test GUARDRAIL.md files.
 
 ## Why?
 
@@ -47,11 +47,11 @@ The `guardrails-ref` CLI is designed to be predictable and supply-chain friendly
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
 | `npx guardrails-ref add --preset default` | Add default preset (4 guardrails) |
 | `npx guardrails-ref add --preset default,frontend` | Add multiple presets (comma-separated) |
-| `npx guardrails-ref add --preset security` | Add security preset (9 guardrails) |
+| `npx guardrails-ref add --preset security` | Add security preset (10 guardrails) |
 | `npx guardrails-ref add --preset quality` | Add quality preset (8 guardrails) |
 | `npx guardrails-ref add --preset frontend` | Add frontend preset (3 guardrails) |
 | `npx guardrails-ref add --preset api` | Add API preset (4 guardrails) |
-| `npx guardrails-ref add --preset production` | Add production preset (6 guardrails) |
+| `npx guardrails-ref add --preset production` | Add production preset (8 guardrails) |
 | `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
 | `npx guardrails-ref add --dry-run <name>` | Preview what would be added without writing |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
@@ -74,6 +74,8 @@ The `guardrails-ref` CLI is designed to be predictable and supply-chain friendly
 | `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON, `--compact` for one per line) |
 | `npx guardrails-ref list --user` or `list ~` | List user-level guardrails |
 | `npx guardrails-ref why <name>` | Show guardrail template content (use `--json` for machine-readable) |
+| `npx guardrails-ref scaffold <name>` | Create a new guardrail skeleton with frontmatter and Trigger/Instruction/Reason sections |
+| `npx guardrails-ref test [path]` | Run basic safety checks (presence, rate-limiting, tools-permissions) |
 | `npx guardrails-ref --debug <command>` | Log every filesystem read/write path (for auditing); or `GUARDRAILS_REF_DEBUG=1` |
 
 ## Supported IDEs
@@ -102,6 +104,13 @@ Or with full output or JSON:
   run: npx guardrails-ref validate . --json
 ```
 
+Run basic safety checks (presence plus key guardrails) in CI:
+
+```yaml
+- name: Safety checks
+  run: npx guardrails-ref test . --json
+```
+
 **Note:** `list` exits with code 1 when no guardrails are found, so it can be used in scripts to check for guardrail presence.
 
 ## Examples
@@ -114,6 +123,7 @@ npx guardrails-ref add no-new-deps-without-approval
 npx guardrails-ref why no-destructive-commands
 npx guardrails-ref validate .
 npx guardrails-ref list .
+npx guardrails-ref test .
 
 # User-level (~/.agents/guardrails/)
 npx guardrails-ref init --user
@@ -151,6 +161,14 @@ npx guardrails-ref validate ~
 | `no-deprecated-apis` | Suggesting deprecated or obsolete APIs |
 | `no-unsafe-env-assumptions` | Assuming env vars exist without validation |
 | `no-hardcoded-user-facing-strings` | Hardcoded labels, messages, errors in UI |
+| `require-accessibility` | Missing alt text, ARIA, keyboard support, or contrast in UI |
+| `require-api-resilience` | API calls without timeouts, retries, or error handling |
+| `require-documentation-updates` | Changing behavior without updating README, docs, or changelog |
+| `no-breaking-changes-without-versioning` | Breaking public APIs without semver bump or migration path |
+| `no-path-traversal` | User-controlled paths without validation (`..`, symlinks outside base) |
+| `no-prompt-leaks` | Leaking internal prompts, system messages, or guardrails into code/logs/docs |
+| `require-logging-standards` | Logging without structure, clear levels, or protection against secrets/PII |
+| `tools-permissions` | Unsafe or overly powerful tools without allow lists, thresholds, or approvals |
 
 Use `npx guardrails-ref add --list` to see all available guardrails. Use `npx guardrails-ref why <name>` to show a guardrail's full content (from templates).
 

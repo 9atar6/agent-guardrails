@@ -17,6 +17,7 @@ import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATE_NAMES, PRESETS } from "./templates.js";
 import { setDebug } from "./debug.js";
 import { runScaffold } from "./scaffold.js";
+import { runTest } from "./test.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -458,6 +459,16 @@ program
       console.log();
     }
     console.log(`Total: ${guardrails.length} guardrail(s)`);
+  });
+
+program
+  .command("test [path]")
+  .description("Run basic safety checks for Agent Guardrails (presence, rate-limiting, tool permissions)")
+  .option("-j, --json", "Output results as JSON")
+  .option("-u, --user", "Use user-level guardrails (~/.agents/guardrails/)")
+  .action(function (this: { opts: () => { json?: boolean; user?: boolean } }, path?: string) {
+    const opts = this.opts();
+    runTest(path, { json: opts.json, user: opts.user });
   });
 
 async function main(): Promise<void> {

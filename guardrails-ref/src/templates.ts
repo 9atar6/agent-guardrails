@@ -108,6 +108,7 @@ export const PRESETS: Record<string, string[]> = {
     "no-raw-sql",
     "no-unsafe-env-assumptions",
     "no-prompt-leaks",
+    "tools-permissions",
   ],
   quality: [
     "no-magic-numbers",
@@ -139,5 +140,6 @@ export const PRESETS: Record<string, string[]> = {
     "no-breaking-changes-without-versioning",
     "no-prompt-leaks",
     "require-logging-standards",
+    "tools-permissions",
   ],
 };

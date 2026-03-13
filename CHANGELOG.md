@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.9] - 2026-03-13
+
+### Added
+
+- **tools-permissions guardrail** — Restrict agents to approved tools and require explicit approval or policies for high-risk actions (deletes, refunds, external calls); added to core examples, website examples, and CLI templates.
+- **test command** — `npx guardrails-ref test [path]` runs basic safety checks for Agent Guardrails (presence, `rate-limiting`, and `tools-permissions`) with support for `--json` and `--user`.
+
+### Changed
+
+- **presets** — Updated `security` and `production` presets to include `tools-permissions`.
+- **docs/README** — Updated READMEs and website docs/examples to mention the new guardrail and `test` command.
+
 ## [1.2.8] - 2026-03-13
 
 ### Added

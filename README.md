@@ -72,7 +72,7 @@ Or add a preset:
 
 ```bash
 npx guardrails-ref add --preset default    # 4 essentials
-npx guardrails-ref add --preset security   # 9 security guardrails
+npx guardrails-ref add --preset security   # 10 security guardrails
 npx guardrails-ref add --preset quality    # 8 code quality guardrails
 npx guardrails-ref add --preset default,frontend   # Multiple presets at once
 ```
@@ -99,6 +99,7 @@ npx guardrails-ref list . --compact   # One name per line (e.g. pipe to xargs)
 npx guardrails-ref validate . --json   # JSON output for scripting
 npx guardrails-ref validate . --strict # Fail on warnings (CI mode)
 npx guardrails-ref list . --json      # JSON output for scripting
+npx guardrails-ref test .             # Basic safety checks (presence, rate-limiting, tools-permissions)
 ```
 
 ### Remove a guardrail
@@ -154,7 +155,7 @@ Run guardrails check before commits to catch invalid files early. See `examples/
 |----------|-------------|
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 30 reference guardrails |
+| [Examples](examples/) | 33 reference guardrails |
 
 ## Example guardrails
 
@@ -175,6 +176,7 @@ Run guardrails check before commits to catch invalid files early. See `examples/
 | `no-hardcoded-urls` | Hardcoded API URLs, base URLs, endpoints |
 | `no-sudo-commands` | `sudo`, `su`, or root-elevated commands without approval |
 | `rate-limiting` | Runaway API loops (e.g. Stripe test mode, max calls) |
+| `tools-permissions` | Unsafe or overly powerful tools without allow lists, thresholds, or approvals |
 | `no-console-in-production` | console.log in production code |
 | `require-tests` | Merging code without tests |
 | `prefer-existing-code` | Reimplementing when existing code or helpers exist |
@@ -206,7 +208,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup.
 ```
 agent-guardrails/
 ├── spec/                    # Specification and client guide
-├── guardrails-ref/          # CLI (init, add, remove, setup, validate, check, upgrade, list, why)
+├── guardrails-ref/          # CLI (init, add, remove, setup, validate, check, upgrade, diff, list, why, scaffold, test)
 ├── examples/                # Reference guardrails
 └── LICENSE
 ```

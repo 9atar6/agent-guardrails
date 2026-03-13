@@ -29,5 +29,13 @@ Reference guardrails you can add with `npx guardrails-ref add <name>`. Use `npx 
 | `no-deprecated-apis` | Suggesting deprecated or obsolete APIs |
 | `no-unsafe-env-assumptions` | Assuming env vars exist without validation |
 | `no-hardcoded-user-facing-strings` | Hardcoded labels, messages, errors in UI |
+| `require-accessibility` | Missing alt text, ARIA, keyboard support, or contrast in UI |
+| `require-api-resilience` | API calls without timeouts, retries, or error handling |
+| `require-documentation-updates` | Changing behavior without updating README, docs, or changelog |
+| `no-breaking-changes-without-versioning` | Breaking public APIs without semver bump or migration path |
+| `no-path-traversal` | User-controlled paths without validation (`..`, symlinks outside base) |
+| `no-prompt-leaks` | Leaking internal prompts, system messages, or guardrails into code/logs/docs |
+| `require-logging-standards` | Logging without structure, clear levels, or protection against secrets/PII |
+| `tools-permissions` | Unsafe or overly powerful tools without allow lists, thresholds, or approvals |
 
 Each example lives in its own directory with a `GUARDRAIL.md` file. See `pre-commit/README.md` for pre-commit, Husky, or npm script setup. See the [specification](../spec/specification.md) for the format.
