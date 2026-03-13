@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "fs";
 import { resolve } from "path";
 import chalk from "chalk";
+import { debugLog } from "./debug.js";
 
 const GUARDRAIL_RULE =
   "You MUST read and follow all constraints in .agents/guardrails/. Never violate a guardrail without explicit human approval.";
@@ -64,22 +65,28 @@ ${GUARDRAIL_RULE}
   const cursorrulesPath = resolve(root, ".cursorrules");
 
   if (existsSync(cursorRuleFile)) {
+    debugLog("read", cursorRuleFile);
     const existing = readFileSync(cursorRuleFile, "utf-8");
     if (!hasRule(existing)) {
+      debugLog("write", cursorRuleFile);
       writeFileSync(cursorRuleFile, cursorRuleContent);
       return true;
     }
   } else if (existsSync(cursorrulesPath)) {
+    debugLog("read", cursorrulesPath);
     const existing = readFileSync(cursorrulesPath, "utf-8");
     if (!hasRule(existing)) {
       const appended = existing.trimEnd() + "\n\n" + GUARDRAIL_RULE + "\n";
+      debugLog("write", cursorrulesPath);
       writeFileSync(cursorrulesPath, appended);
       return true;
     }
   } else {
     if (!existsSync(cursorRulesDir)) {
+      debugLog("write", cursorRulesDir);
       mkdirSync(cursorRulesDir, { recursive: true });
     }
+    debugLog("write", cursorRuleFile);
     writeFileSync(cursorRuleFile, cursorRuleContent);
     return true;
   }
@@ -91,16 +98,20 @@ function setupClaude(root: string): boolean {
   const claudeInstructions = resolve(claudeDir, "instructions.md");
 
   if (existsSync(claudeInstructions)) {
+    debugLog("read", claudeInstructions);
     const existing = readFileSync(claudeInstructions, "utf-8");
     if (!hasRule(existing)) {
       const appended = existing.trimEnd() + "\n\n" + GUARDRAIL_RULE + "\n";
+      debugLog("write", claudeInstructions);
       writeFileSync(claudeInstructions, appended);
       return true;
     }
   } else {
     if (!existsSync(claudeDir)) {
+      debugLog("write", claudeDir);
       mkdirSync(claudeDir, { recursive: true });
     }
+    debugLog("write", claudeInstructions);
     writeFileSync(claudeInstructions, GUARDRAIL_RULE + "\n");
     return true;
   }
@@ -114,16 +125,20 @@ function setupCopilot(root: string): boolean {
   const ruleBlock = `\n\n${GUARDRAIL_RULE}\n`;
 
   if (existsSync(copilotFile)) {
+    debugLog("read", copilotFile);
     const existing = readFileSync(copilotFile, "utf-8");
     if (!hasRule(existing)) {
       const appended = existing.trimEnd() + ruleBlock;
+      debugLog("write", copilotFile);
       writeFileSync(copilotFile, appended);
       return true;
     }
   } else {
     if (!existsSync(githubDir)) {
+      debugLog("write", githubDir);
       mkdirSync(githubDir, { recursive: true });
     }
+    debugLog("write", copilotFile);
     writeFileSync(copilotFile, GUARDRAIL_RULE + "\n");
     return true;
   }
@@ -135,13 +150,16 @@ function setupWindsurf(root: string): boolean {
   const ruleBlock = `\n\n${GUARDRAIL_RULE}\n`;
 
   if (existsSync(windsurfFile)) {
+    debugLog("read", windsurfFile);
     const existing = readFileSync(windsurfFile, "utf-8");
     if (!hasRule(existing)) {
       const appended = existing.trimEnd() + ruleBlock;
+      debugLog("write", windsurfFile);
       writeFileSync(windsurfFile, appended);
       return true;
     }
   } else {
+    debugLog("write", windsurfFile);
     writeFileSync(windsurfFile, GUARDRAIL_RULE + "\n");
     return true;
   }
@@ -154,15 +172,19 @@ function setupContinue(root: string): boolean {
   const continueRuleContent = `# Agent Guardrails\n\n${GUARDRAIL_RULE}\n`;
 
   if (existsSync(continueRuleFile)) {
+    debugLog("read", continueRuleFile);
     const existing = readFileSync(continueRuleFile, "utf-8");
     if (!hasRule(existing)) {
+      debugLog("write", continueRuleFile);
       writeFileSync(continueRuleFile, continueRuleContent);
       return true;
     }
   } else {
     if (!existsSync(continueRulesDir)) {
+      debugLog("write", continueRulesDir);
       mkdirSync(continueRulesDir, { recursive: true });
     }
+    debugLog("write", continueRuleFile);
     writeFileSync(continueRuleFile, continueRuleContent);
     return true;
   }
@@ -175,15 +197,19 @@ function setupJetbrains(root: string): boolean {
   const jetbrainsRuleContent = `# Agent Guardrails\n\n${GUARDRAIL_RULE}\n`;
 
   if (existsSync(jetbrainsRuleFile)) {
+    debugLog("read", jetbrainsRuleFile);
     const existing = readFileSync(jetbrainsRuleFile, "utf-8");
     if (!hasRule(existing)) {
+      debugLog("write", jetbrainsRuleFile);
       writeFileSync(jetbrainsRuleFile, jetbrainsRuleContent);
       return true;
     }
   } else {
     if (!existsSync(jetbrainsRulesDir)) {
+      debugLog("write", jetbrainsRulesDir);
       mkdirSync(jetbrainsRulesDir, { recursive: true });
     }
+    debugLog("write", jetbrainsRuleFile);
     writeFileSync(jetbrainsRuleFile, jetbrainsRuleContent);
     return true;
   }
@@ -196,16 +222,20 @@ function setupJunie(root: string): boolean {
   const ruleBlock = `\n\n${GUARDRAIL_RULE}\n`;
 
   if (existsSync(junieFile)) {
+    debugLog("read", junieFile);
     const existing = readFileSync(junieFile, "utf-8");
     if (!hasRule(existing)) {
       const appended = existing.trimEnd() + ruleBlock;
+      debugLog("write", junieFile);
       writeFileSync(junieFile, appended);
       return true;
     }
   } else {
     if (!existsSync(junieDir)) {
+      debugLog("write", junieDir);
       mkdirSync(junieDir, { recursive: true });
     }
+    debugLog("write", junieFile);
     writeFileSync(junieFile, GUARDRAIL_RULE + "\n");
     return true;
   }
@@ -219,17 +249,21 @@ function removeCursor(root: string): boolean {
 
   let done = false;
   if (existsSync(cursorRuleFile)) {
+    debugLog("write", cursorRuleFile);
     rmSync(cursorRuleFile);
     done = true;
   }
 
   if (existsSync(cursorrulesPath)) {
+    debugLog("read", cursorrulesPath);
     const existing = readFileSync(cursorrulesPath, "utf-8");
     if (hasRule(existing)) {
       const cleaned = removeRuleFromContent(existing);
       if (cleaned) {
+        debugLog("write", cursorrulesPath);
         writeFileSync(cursorrulesPath, cleaned + "\n");
       } else {
+        debugLog("write", cursorrulesPath);
         rmSync(cursorrulesPath);
       }
       done = true;
@@ -242,12 +276,15 @@ function removeClaude(root: string): boolean {
   const claudeInstructions = resolve(root, ".claude", "instructions.md");
 
   if (existsSync(claudeInstructions)) {
+    debugLog("read", claudeInstructions);
     const existing = readFileSync(claudeInstructions, "utf-8");
     if (hasRule(existing)) {
       const cleaned = removeRuleFromContent(existing);
       if (cleaned) {
+        debugLog("write", claudeInstructions);
         writeFileSync(claudeInstructions, cleaned + "\n");
       } else {
+        debugLog("write", claudeInstructions);
         rmSync(claudeInstructions);
       }
       return true;
@@ -260,12 +297,15 @@ function removeCopilot(root: string): boolean {
   const copilotFile = resolve(root, ".github", "copilot-instructions.md");
 
   if (existsSync(copilotFile)) {
+    debugLog("read", copilotFile);
     const existing = readFileSync(copilotFile, "utf-8");
     if (hasRule(existing)) {
       const cleaned = removeRuleFromContent(existing);
       if (cleaned) {
+        debugLog("write", copilotFile);
         writeFileSync(copilotFile, cleaned + "\n");
       } else {
+        debugLog("write", copilotFile);
         rmSync(copilotFile);
       }
       return true;
@@ -278,12 +318,15 @@ function removeWindsurf(root: string): boolean {
   const windsurfFile = resolve(root, ".windsurfrules");
 
   if (existsSync(windsurfFile)) {
+    debugLog("read", windsurfFile);
     const existing = readFileSync(windsurfFile, "utf-8");
     if (hasRule(existing)) {
       const cleaned = removeRuleFromContent(existing);
       if (cleaned) {
+        debugLog("write", windsurfFile);
         writeFileSync(windsurfFile, cleaned + "\n");
       } else {
+        debugLog("write", windsurfFile);
         rmSync(windsurfFile);
       }
       return true;
@@ -296,6 +339,7 @@ function removeContinue(root: string): boolean {
   const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
 
   if (existsSync(continueRuleFile)) {
+    debugLog("write", continueRuleFile);
     rmSync(continueRuleFile);
     return true;
   }
@@ -306,6 +350,7 @@ function removeJetbrains(root: string): boolean {
   const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
 
   if (existsSync(jetbrainsRuleFile)) {
+    debugLog("write", jetbrainsRuleFile);
     rmSync(jetbrainsRuleFile);
     return true;
   }
@@ -316,12 +361,15 @@ function removeJunie(root: string): boolean {
   const junieFile = resolve(root, ".junie", "guidelines.md");
 
   if (existsSync(junieFile)) {
+    debugLog("read", junieFile);
     const existing = readFileSync(junieFile, "utf-8");
     if (hasRule(existing)) {
       const cleaned = removeRuleFromContent(existing);
       if (cleaned) {
+        debugLog("write", junieFile);
         writeFileSync(junieFile, cleaned + "\n");
       } else {
+        debugLog("write", junieFile);
         rmSync(junieFile);
       }
       return true;
@@ -335,10 +383,12 @@ function checkCursor(root: string): { configured: boolean; hasRule: boolean } {
   const cursorrulesPath = resolve(root, ".cursorrules");
 
   if (existsSync(cursorRuleFile)) {
+    debugLog("read", cursorRuleFile);
     const content = readFileSync(cursorRuleFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
   if (existsSync(cursorrulesPath)) {
+    debugLog("read", cursorrulesPath);
     const content = readFileSync(cursorrulesPath, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -349,6 +399,7 @@ function checkClaude(root: string): { configured: boolean; hasRule: boolean } {
   const claudeInstructions = resolve(root, ".claude", "instructions.md");
 
   if (existsSync(claudeInstructions)) {
+    debugLog("read", claudeInstructions);
     const content = readFileSync(claudeInstructions, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -359,6 +410,7 @@ function checkCopilot(root: string): { configured: boolean; hasRule: boolean } {
   const copilotFile = resolve(root, ".github", "copilot-instructions.md");
 
   if (existsSync(copilotFile)) {
+    debugLog("read", copilotFile);
     const content = readFileSync(copilotFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -369,6 +421,7 @@ function checkWindsurf(root: string): { configured: boolean; hasRule: boolean } 
   const windsurfFile = resolve(root, ".windsurfrules");
 
   if (existsSync(windsurfFile)) {
+    debugLog("read", windsurfFile);
     const content = readFileSync(windsurfFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -379,6 +432,7 @@ function checkContinue(root: string): { configured: boolean; hasRule: boolean } 
   const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
 
   if (existsSync(continueRuleFile)) {
+    debugLog("read", continueRuleFile);
     const content = readFileSync(continueRuleFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -389,6 +443,7 @@ function checkJetbrains(root: string): { configured: boolean; hasRule: boolean }
   const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
 
   if (existsSync(jetbrainsRuleFile)) {
+    debugLog("read", jetbrainsRuleFile);
     const content = readFileSync(jetbrainsRuleFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -399,6 +454,7 @@ function checkJunie(root: string): { configured: boolean; hasRule: boolean } {
   const junieFile = resolve(root, ".junie", "guidelines.md");
 
   if (existsSync(junieFile)) {
+    debugLog("read", junieFile);
     const content = readFileSync(junieFile, "utf-8");
     return { configured: true, hasRule: hasRule(content) };
   }
@@ -424,20 +480,32 @@ export function runSetupCheck(projectPath: string = "."): SetupCheckResult {
 function wouldSetupCursor(root: string): boolean {
   const cursorRuleFile = resolve(root, ".cursor", "rules", "agent-guardrails.md");
   const cursorrulesPath = resolve(root, ".cursorrules");
-  if (existsSync(cursorRuleFile)) return !hasRule(readFileSync(cursorRuleFile, "utf-8"));
-  if (existsSync(cursorrulesPath)) return !hasRule(readFileSync(cursorrulesPath, "utf-8"));
+  if (existsSync(cursorRuleFile)) {
+    debugLog("read", cursorRuleFile);
+    return !hasRule(readFileSync(cursorRuleFile, "utf-8"));
+  }
+  if (existsSync(cursorrulesPath)) {
+    debugLog("read", cursorrulesPath);
+    return !hasRule(readFileSync(cursorrulesPath, "utf-8"));
+  }
   return true;
 }
 
 function wouldSetupClaude(root: string): boolean {
   const claudeInstructions = resolve(root, ".claude", "instructions.md");
-  if (existsSync(claudeInstructions)) return !hasRule(readFileSync(claudeInstructions, "utf-8"));
+  if (existsSync(claudeInstructions)) {
+    debugLog("read", claudeInstructions);
+    return !hasRule(readFileSync(claudeInstructions, "utf-8"));
+  }
   return true;
 }
 
 function wouldSetupCopilot(root: string): boolean {
   const copilotFile = resolve(root, ".github", "copilot-instructions.md");
-  if (existsSync(copilotFile)) return !hasRule(readFileSync(copilotFile, "utf-8"));
+  if (existsSync(copilotFile)) {
+    debugLog("read", copilotFile);
+    return !hasRule(readFileSync(copilotFile, "utf-8"));
+  }
   return true;
 }
 
@@ -445,47 +513,74 @@ function wouldRemoveCursor(root: string): boolean {
   const cursorRuleFile = resolve(root, ".cursor", "rules", "agent-guardrails.md");
   const cursorrulesPath = resolve(root, ".cursorrules");
   if (existsSync(cursorRuleFile)) return true;
-  if (existsSync(cursorrulesPath)) return hasRule(readFileSync(cursorrulesPath, "utf-8"));
+  if (existsSync(cursorrulesPath)) {
+    debugLog("read", cursorrulesPath);
+    return hasRule(readFileSync(cursorrulesPath, "utf-8"));
+  }
   return false;
 }
 
 function wouldRemoveClaude(root: string): boolean {
   const claudeInstructions = resolve(root, ".claude", "instructions.md");
-  return existsSync(claudeInstructions) && hasRule(readFileSync(claudeInstructions, "utf-8"));
+  if (existsSync(claudeInstructions)) {
+    debugLog("read", claudeInstructions);
+    return hasRule(readFileSync(claudeInstructions, "utf-8"));
+  }
+  return false;
 }
 
 function wouldRemoveCopilot(root: string): boolean {
   const copilotFile = resolve(root, ".github", "copilot-instructions.md");
-  return existsSync(copilotFile) && hasRule(readFileSync(copilotFile, "utf-8"));
+  if (existsSync(copilotFile)) {
+    debugLog("read", copilotFile);
+    return hasRule(readFileSync(copilotFile, "utf-8"));
+  }
+  return false;
 }
 
 function wouldSetupWindsurf(root: string): boolean {
   const windsurfFile = resolve(root, ".windsurfrules");
-  if (existsSync(windsurfFile)) return !hasRule(readFileSync(windsurfFile, "utf-8"));
+  if (existsSync(windsurfFile)) {
+    debugLog("read", windsurfFile);
+    return !hasRule(readFileSync(windsurfFile, "utf-8"));
+  }
   return true;
 }
 
 function wouldSetupContinue(root: string): boolean {
   const continueRuleFile = resolve(root, ".continue", "rules", "agent-guardrails.md");
-  if (existsSync(continueRuleFile)) return !hasRule(readFileSync(continueRuleFile, "utf-8"));
+  if (existsSync(continueRuleFile)) {
+    debugLog("read", continueRuleFile);
+    return !hasRule(readFileSync(continueRuleFile, "utf-8"));
+  }
   return true;
 }
 
 function wouldSetupJetbrains(root: string): boolean {
   const jetbrainsRuleFile = resolve(root, ".aiassistant", "rules", "agent-guardrails.md");
-  if (existsSync(jetbrainsRuleFile)) return !hasRule(readFileSync(jetbrainsRuleFile, "utf-8"));
+  if (existsSync(jetbrainsRuleFile)) {
+    debugLog("read", jetbrainsRuleFile);
+    return !hasRule(readFileSync(jetbrainsRuleFile, "utf-8"));
+  }
   return true;
 }
 
 function wouldSetupJunie(root: string): boolean {
   const junieFile = resolve(root, ".junie", "guidelines.md");
-  if (existsSync(junieFile)) return !hasRule(readFileSync(junieFile, "utf-8"));
+  if (existsSync(junieFile)) {
+    debugLog("read", junieFile);
+    return !hasRule(readFileSync(junieFile, "utf-8"));
+  }
   return true;
 }
 
 function wouldRemoveWindsurf(root: string): boolean {
   const windsurfFile = resolve(root, ".windsurfrules");
-  return existsSync(windsurfFile) && hasRule(readFileSync(windsurfFile, "utf-8"));
+  if (existsSync(windsurfFile)) {
+    debugLog("read", windsurfFile);
+    return hasRule(readFileSync(windsurfFile, "utf-8"));
+  }
+  return false;
 }
 
 function wouldRemoveContinue(root: string): boolean {
@@ -498,7 +593,11 @@ function wouldRemoveJetbrains(root: string): boolean {
 
 function wouldRemoveJunie(root: string): boolean {
   const junieFile = resolve(root, ".junie", "guidelines.md");
-  return existsSync(junieFile) && hasRule(readFileSync(junieFile, "utf-8"));
+  if (existsSync(junieFile)) {
+    debugLog("read", junieFile);
+    return hasRule(readFileSync(junieFile, "utf-8"));
+  }
+  return false;
 }
 
 const ALL_IDES: IdeName[] = [

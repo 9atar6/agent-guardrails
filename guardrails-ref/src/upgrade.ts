@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import chalk from "chalk";
 import { createPatch } from "diff";
+import { debugLog } from "./debug.js";
 import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATES } from "./templates.js";
 
@@ -42,6 +43,7 @@ export function runUpgrade(
     return result;
   }
 
+  debugLog("read", guardrailsDir);
   const entries = readdirSync(guardrailsDir, { withFileTypes: true });
   for (const ent of entries) {
     if (!ent.isDirectory()) continue;
@@ -55,18 +57,20 @@ export function runUpgrade(
       continue;
     }
 
-    const current = readFileSync(filePath, "utf-8");
+    debugLog("read", filePath);
+  const current = readFileSync(filePath, "utf-8");
     if (current.trim() === template.trim()) {
       result.skipped.push(name);
       continue;
     }
 
     result.updated.push(name);
-    if (!dryRun) {
-      if (showDiff) {
-        printDiff(name, current, template);
-      }
-      writeFileSync(filePath, template);
+  if (!dryRun) {
+    if (showDiff) {
+      printDiff(name, current, template);
+    }
+    debugLog("write", filePath);
+    writeFileSync(filePath, template);
       console.log(chalk.green("✓") + " Updated " + pathLabel + name + "/GUARDRAIL.md");
     } else {
       console.log(chalk.cyan("Would update") + " " + pathLabel + name + "/GUARDRAIL.md");

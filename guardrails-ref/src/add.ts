@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import chalk from "chalk";
 import { resolveGuardrailsDir } from "./path-utils.js";
+import { debugLog } from "./debug.js";
 import { TEMPLATES, TEMPLATE_NAMES } from "./templates.js";
 
 export function runAdd(name: string, projectPath: string = ".", userScope = false, dryRun = false): boolean {
@@ -34,11 +35,14 @@ export function runAdd(name: string, projectPath: string = ".", userScope = fals
   }
 
   if (!existsSync(guardrailsDir)) {
+    debugLog("write", guardrailsDir);
     mkdirSync(guardrailsDir, { recursive: true });
     console.log(chalk.green("✓") + " Created " + pathLabel);
   }
 
+  debugLog("write", exampleDir);
   mkdirSync(exampleDir, { recursive: true });
+  debugLog("write", exampleFile);
   writeFileSync(exampleFile, content);
   console.log(chalk.green("✓") + " Added " + pathLabel + normalized + "/GUARDRAIL.md");
   return true;

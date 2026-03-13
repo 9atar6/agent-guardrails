@@ -22,6 +22,19 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 
 **User-level guardrails:** Use `--user` or path `~` to work with `~/.agents/guardrails/` (applies across all projects). Example: `npx guardrails-ref init --user`.
 
+## Security model
+
+The `guardrails-ref` CLI is designed to be predictable and supply-chain friendly:
+
+- **No network access** — the CLI never makes HTTP requests or spawns external processes.
+- **Local-only filesystem writes** — writes are limited to:
+  - Project-level `.agents/guardrails/` (or user-level `~/.agents/guardrails/`)
+  - IDE configuration files in the current project (e.g. `.cursor/rules/agent-guardrails.md`, `.claude/instructions.md`, `.github/copilot-instructions.md`, `.windsurfrules`, `.continue/rules/agent-guardrails.md`, `.aiassistant/rules/agent-guardrails.md`, `.junie/guidelines.md`)
+- **Opt-in user scope** — user-level guardrails are only written when you pass `--user` or use the `~` path explicitly.
+- **Dry-run for write operations** — commands that may modify files support `--dry-run` to show what would change without writing.
+- **Read-only mode** — set `GUARDRAILS_REF_READONLY=1` (or `true`) in the environment to force all commands into a non-writing mode; the CLI behaves as if `--dry-run` is enabled wherever applicable.
+- **Audit mode** — set `GUARDRAILS_REF_DEBUG=1` (or `true`/`yes`) or use `--debug` to log every filesystem read/write path to stderr.
+
 ## Commands
 
 | Command | Description |
@@ -30,6 +43,7 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | `npx guardrails-ref init --preset default [path]` | Add preset instead of single example (e.g. default, security) |
 | `npx guardrails-ref init --minimal [path]` | Create `.agents/guardrails/` only (no example, no setup) |
 | `npx guardrails-ref init --user` | Create `~/.agents/guardrails/` (user-level; setup is project-specific) |
+| `npx guardrails-ref init --dry-run [path]` | Preview what would be created without writing |
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
 | `npx guardrails-ref add --preset default` | Add default preset (4 guardrails) |
 | `npx guardrails-ref add --preset default,frontend` | Add multiple presets (comma-separated) |
@@ -39,23 +53,28 @@ Creates `.agents/guardrails/`, adds the `no-plaintext-secrets` example, and conf
 | `npx guardrails-ref add --preset api` | Add API preset (4 guardrails) |
 | `npx guardrails-ref add --preset production` | Add production preset (6 guardrails) |
 | `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
+| `npx guardrails-ref add --dry-run <name>` | Preview what would be added without writing |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
 | `npx guardrails-ref remove <name> --user` or `remove <name> ~` | Remove from user-level |
+| `npx guardrails-ref remove <name> --dry-run [path]` | Preview what would be removed without writing |
 | `npx guardrails-ref setup [path]` | Add the guardrail rule to Cursor, Claude Code, VS Code Copilot, Windsurf, Continue, JetBrains |
 | `npx guardrails-ref setup --remove [path]` | Remove the guardrail rule from IDE configs |
 | `npx guardrails-ref setup --pre-commit [path]` | Add guardrails check to pre-commit hook (Husky or pre-commit) |
 | `npx guardrails-ref setup --ide <name> [path]` | Target IDE: `cursor`, `claude`, `copilot`, `windsurf`, `continue`, `jetbrains`, `junie`, or `auto` |
 | `npx guardrails-ref setup --dry-run [path]` | Show what would be added/removed without writing files |
 | `npx guardrails-ref setup --check [path]` | Show which IDEs are configured and whether they have the rule |
+| `npx guardrails-ref setup --check --fail-if-missing [path]` | Exit 1 if configured IDE lacks rule (CI) |
 | `npx guardrails-ref validate [path]` | Validate GUARDRAIL.md files (use `--json` for JSON, `--strict` to fail on warnings, `--fix` to apply fixes) |
+| `npx guardrails-ref validate --fix --dry-run [path]` | Preview which files would be fixed without writing |
 | `npx guardrails-ref validate --user` or `validate ~` | Validate user-level guardrails |
 | `npx guardrails-ref check [path]` | Validate with minimal output (CI-friendly, use `--strict` to fail on warnings) |
 | `npx guardrails-ref upgrade [path]` | Update installed guardrails to latest templates (use `--dry-run` to preview, `--diff` to show changes) |
 | `npx guardrails-ref upgrade --user` or `upgrade ~` | Upgrade user-level guardrails |
 | `npx guardrails-ref diff [path]` | Show diff between installed guardrails and latest templates |
-| `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON output) |
+| `npx guardrails-ref list [path]` | List discovered guardrails (use `--json` for JSON, `--compact` for one per line) |
 | `npx guardrails-ref list --user` or `list ~` | List user-level guardrails |
-| `npx guardrails-ref why <name>` | Show guardrail template content (e.g. `why no-destructive-commands`) |
+| `npx guardrails-ref why <name>` | Show guardrail template content (use `--json` for machine-readable) |
+| `npx guardrails-ref --debug <command>` | Log every filesystem read/write path (for auditing); or `GUARDRAILS_REF_DEBUG=1` |
 
 ## Supported IDEs
 

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-03-13
+
+### Added
+
+- **validate --dry-run --fix** — Preview which guardrail files would be normalized without writing, and honor a global read-only mode via `GUARDRAILS_REF_READONLY`.
+- **init --dry-run** — Show which `.agents/guardrails/` entries and IDE configs would be created without touching the filesystem.
+- **remove --dry-run** — Show which guardrails (and empty `.agents/guardrails/` directories) would be removed.
+
+### Changed
+
+- **validate / fixGuardrailFile** — Surface YAML frontmatter parse errors as warnings instead of silently ignoring them; log directories and paths that cannot be read or stat'ed.
+- **CLI** — Added `GUARDRAILS_REF_READONLY` support for all write-capable commands (mapping to dry-run) and wrapped the command dispatcher in a top-level error handler for cleaner unexpected error reporting.
+- **init --dry-run** — Now passes dry-run to setup; IDE config files are no longer written when using `--dry-run`.
+- **package.json** — Added `sideEffects: false` for bundler/tooling.
+- **README** — Added `init --dry-run`, `remove --dry-run`, and `validate --fix --dry-run` to the commands table.
+- **--debug** — Global flag (or `GUARDRAILS_REF_DEBUG=1`) logs every filesystem read/write path to stderr for auditing.
+
 ## [1.2.6] - 2026-03-12
 
 ### Added

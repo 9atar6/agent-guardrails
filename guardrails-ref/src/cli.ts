@@ -15,36 +15,70 @@ import { runRemove } from "./remove.js";
 import { runUpgrade } from "./upgrade.js";
 import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATE_NAMES, PRESETS } from "./templates.js";
+import { setDebug } from "./debug.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = require("../package.json") as { version: string };
 
+function isReadOnlyEnv(): boolean {
+  const value = process.env.GUARDRAILS_REF_READONLY;
+  if (!value) return false;
+  const normalized = value.toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
 program
   .name("guardrails-ref")
   .description("Validate and list Agent Guardrails (GUARDRAIL.md) files")
-  .version(pkg.version);
+  .version(pkg.version)
+  .option("-d, --debug", "Log every filesystem read/write path (for auditing)")
+  .hook("preAction", (thisCommand) => {
+    const opts = thisCommand.optsWithGlobals() as { debug?: boolean };
+    const v = process.env.GUARDRAILS_REF_DEBUG;
+    const fromEnv =
+      v === "1" || ["true", "yes"].includes(v?.toLowerCase() ?? "");
+    setDebug(opts.debug ?? fromEnv);
+  });
 
 function runValidate(
   path: string,
-  options: { json?: boolean; strict?: boolean; minimal?: boolean; user?: boolean; fix?: boolean }
+  options: {
+    json?: boolean;
+    strict?: boolean;
+    minimal?: boolean;
+    user?: boolean;
+    fix?: boolean;
+    dryRun?: boolean;
+    readOnlyEnv?: boolean;
+  }
 ): void {
   const userScope = options.user ?? path === "~";
   const pathToScan = userScope ? resolveGuardrailsDir("~", true) : path;
   let result = validatePath(pathToScan);
 
+  const effectiveDryRun = (options.dryRun ?? false) || (options.readOnlyEnv ?? false);
+
   if (options.fix) {
     const fixed: string[] = [];
+    const wouldFix: string[] = [];
     for (const r of result.results) {
       if (r.success && r.path) {
-        if (fixGuardrailFile(r.path)) fixed.push(r.path);
+        if (effectiveDryRun) {
+          if (fixGuardrailFile(r.path, true)) {
+            wouldFix.push(r.path);
+          }
+        } else if (fixGuardrailFile(r.path, false)) {
+          fixed.push(r.path);
+        }
       }
+    }
+    if (!options.json && !options.minimal) {
+      for (const p of fixed) console.log(chalk.green("✓") + " Fixed " + p);
+      for (const p of wouldFix) console.log(chalk.green("[dry-run] Would fix") + " " + p);
     }
     if (fixed.length > 0) {
       result = validatePath(pathToScan);
-      if (!options.json && !options.minimal) {
-        for (const p of fixed) console.log(chalk.green("✓") + " Fixed " + p);
-      }
     }
   }
   const hasWarnings = result.results.some((r) => r.warnings.length > 0);
@@ -123,9 +157,15 @@ program
   .option("-s, --strict", "Fail on warnings (CI mode)")
   .option("-u, --user", "Use user-level guardrails (~/.agents/guardrails/)")
   .option("-f, --fix", "Apply fixes (whitespace, newline, frontmatter key order)")
-  .action(function (this: { opts: () => { json?: boolean; strict?: boolean; user?: boolean; fix?: boolean } }, path?: string) {
+  .option("-n, --dry-run", "Show which files would be fixed without writing")
+  .action(function (
+    this: {
+      opts: () => { json?: boolean; strict?: boolean; user?: boolean; fix?: boolean; dryRun?: boolean };
+    },
+    path?: string
+  ) {
     const opts = this.opts();
-    runValidate(path ?? ".", opts);
+    runValidate(path ?? ".", { ...opts, readOnlyEnv: isReadOnlyEnv() });
   });
 
 program
@@ -134,7 +174,7 @@ program
   .option("-s, --strict", "Fail on warnings")
   .action(function (this: { opts: () => { strict?: boolean } }, path?: string) {
     const opts = this.opts();
-    runValidate(path ?? ".", { ...opts, minimal: true });
+    runValidate(path ?? ".", { ...opts, minimal: true, readOnlyEnv: isReadOnlyEnv() });
   });
 
 program
@@ -143,9 +183,18 @@ program
   .option("-m, --minimal", "Create .agents/guardrails/ only, no example and no setup")
   .option("-p, --preset <name>", "Add preset instead of no-plaintext-secrets (e.g. default, security)")
   .option("-u, --user", "Create ~/.agents/guardrails/ (user-level); setup is project-specific")
-  .action(function (this: { opts: () => { minimal?: boolean; preset?: string; user?: boolean } }, path?: string) {
+  .option(
+    "-n, --dry-run",
+    "Show what would be created and which IDE configs would be touched, without writing"
+  )
+  .action(function (
+    this: { opts: () => { minimal?: boolean; preset?: string; user?: boolean; dryRun?: boolean } },
+    path?: string
+  ) {
     const opts = this.opts();
-    runInit(path ?? ".", opts.minimal, opts.user, opts.preset);
+    const readOnlyEnv = isReadOnlyEnv();
+    const dryRun = opts.dryRun ?? readOnlyEnv;
+    runInit(path ?? ".", opts.minimal, opts.user, opts.preset, dryRun);
   });
 
 program
@@ -206,7 +255,7 @@ program
     }
     const userScope = opts.user ?? targetPath === "~";
     const addPath = userScope ? "~" : targetPath;
-    const dryRun = opts.dryRun ?? false;
+    const dryRun = (opts.dryRun ?? false) || isReadOnlyEnv();
     let failed = 0;
     for (const name of args) {
       if (!name.trim()) continue;
@@ -225,7 +274,8 @@ program
     const opts = this.opts();
     const p = path ?? ".";
     const userScope = opts.user ?? p === "~";
-    runUpgrade(userScope ? "~" : p, opts.dryRun, opts.diff, userScope);
+    const dryRun = (opts.dryRun ?? false) || isReadOnlyEnv();
+    runUpgrade(userScope ? "~" : p, dryRun, opts.diff, userScope);
   });
 
 program
@@ -243,11 +293,13 @@ program
   .command("remove <name> [path]")
   .description("Remove a guardrail from .agents/guardrails/")
   .option("-u, --user", "Remove from user-level ~/.agents/guardrails/")
-  .action(function (this: { opts: () => { user?: boolean } }, name: string, path?: string) {
+  .option("-n, --dry-run", "Show what would be removed without writing")
+  .action(function (this: { opts: () => { user?: boolean; dryRun?: boolean } }, name: string, path?: string) {
     const opts = this.opts();
     const p = path ?? ".";
     const userScope = opts.user ?? p === "~";
-    const ok = runRemove(name, userScope ? "~" : p, userScope);
+    const dryRun = (opts.dryRun ?? false) || isReadOnlyEnv();
+    const ok = runRemove(name, userScope ? "~" : p, userScope, dryRun);
     process.exit(ok ? 0 : 1);
   });
 
@@ -263,8 +315,10 @@ program
   .action(function (this: { opts: () => { remove?: boolean; preCommit?: boolean; ide?: string; dryRun?: boolean; check?: boolean; failIfMissing?: boolean } }, path?: string) {
     const p = path ?? ".";
     const opts = this.opts();
+    const readOnlyEnv = isReadOnlyEnv();
+    const dryRun = (opts.dryRun ?? false) || readOnlyEnv;
     if (opts.preCommit) {
-      const result = runSetupPreCommit(p, opts.remove ?? false, opts.dryRun ?? false);
+      const result = runSetupPreCommit(p, opts.remove ?? false, dryRun);
       console.log(result.message);
       return;
     }
@@ -300,8 +354,8 @@ program
       process.exit(1);
     }
     const result = opts.remove
-      ? runSetupRemove(p, ide as IdeName | "all" | "auto" | undefined, opts.dryRun)
-      : runSetup(p, ide as IdeName | "all" | "auto" | undefined, opts.dryRun);
+      ? runSetupRemove(p, ide as IdeName | "all" | "auto" | undefined, dryRun)
+      : runSetup(p, ide as IdeName | "all" | "auto" | undefined, dryRun);
     console.log(result.message);
   });
 
@@ -354,4 +408,14 @@ program
     console.log(`Total: ${guardrails.length} guardrail(s)`);
   });
 
-program.parse();
+async function main(): Promise<void> {
+  try {
+    await program.parseAsync();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(chalk.red("Unexpected error in guardrails-ref:"), message);
+    process.exit(1);
+  }
+}
+
+void main();

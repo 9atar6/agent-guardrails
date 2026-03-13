@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import chalk from "chalk";
 import { resolveGuardrailsDir } from "./path-utils.js";
+import { debugLog } from "./debug.js";
 import { runSetup } from "./setup.js";
 import { TEMPLATES, PRESETS } from "./templates.js";
 
@@ -15,7 +16,8 @@ export function runInit(
   projectPath: string = ".",
   minimal = false,
   userScope = false,
-  preset?: string
+  preset?: string,
+  dryRun = false
 ): InitResult {
   const guardrailsDir = resolveGuardrailsDir(projectPath, userScope);
   const pathLabel = userScope ? "~/.agents/guardrails/" : ".agents/guardrails/";
@@ -23,8 +25,13 @@ export function runInit(
   let exampleCreated = false;
 
   if (!existsSync(guardrailsDir)) {
-    mkdirSync(guardrailsDir, { recursive: true });
-    console.log(chalk.green("✓") + " Created " + pathLabel);
+    if (dryRun) {
+      console.log(chalk.green("Would create:") + " " + pathLabel);
+    } else {
+      debugLog("write", guardrailsDir);
+      mkdirSync(guardrailsDir, { recursive: true });
+      console.log(chalk.green("✓") + " Created " + pathLabel);
+    }
   }
 
   if (minimal || userScope) {
@@ -36,10 +43,16 @@ export function runInit(
           const exampleFile = join(exampleDir, "GUARDRAIL.md");
           const content = TEMPLATES[name];
           if (content && !existsSync(exampleFile)) {
-            mkdirSync(exampleDir, { recursive: true });
-            writeFileSync(exampleFile, content);
-            exampleCreated = true;
-            console.log(chalk.green("✓") + " Added " + pathLabel + name + "/GUARDRAIL.md");
+            if (dryRun) {
+              console.log(chalk.green("Would add:") + " " + pathLabel + name + "/GUARDRAIL.md");
+            } else {
+              debugLog("write", exampleDir);
+              mkdirSync(exampleDir, { recursive: true });
+              debugLog("write", exampleFile);
+              writeFileSync(exampleFile, content);
+              exampleCreated = true;
+              console.log(chalk.green("✓") + " Added " + pathLabel + name + "/GUARDRAIL.md");
+            }
           }
         }
       }
@@ -47,10 +60,18 @@ export function runInit(
       const exampleDir = join(guardrailsDir, "no-plaintext-secrets");
       const exampleFile = join(exampleDir, "GUARDRAIL.md");
       if (!existsSync(exampleFile)) {
-        mkdirSync(exampleDir, { recursive: true });
-        writeFileSync(exampleFile, TEMPLATES["no-plaintext-secrets"]);
-        exampleCreated = true;
-        console.log(chalk.green("✓") + " Created ~/.agents/guardrails/no-plaintext-secrets/GUARDRAIL.md");
+        if (dryRun) {
+          console.log(
+            chalk.green("Would create:") + " ~/.agents/guardrails/no-plaintext-secrets/GUARDRAIL.md"
+          );
+        } else {
+          debugLog("write", exampleDir);
+          mkdirSync(exampleDir, { recursive: true });
+          debugLog("write", exampleFile);
+          writeFileSync(exampleFile, TEMPLATES["no-plaintext-secrets"]);
+          exampleCreated = true;
+          console.log(chalk.green("✓") + " Created ~/.agents/guardrails/no-plaintext-secrets/GUARDRAIL.md");
+        }
       }
     }
     return {
@@ -65,7 +86,7 @@ export function runInit(
     if (!presetNames) {
       console.error(chalk.red("Unknown preset:") + " " + preset);
       console.error(chalk.gray("Available: " + Object.keys(PRESETS).join(", ")));
-      const setupResult = runSetup(projectPath);
+      const setupResult = dryRun ? { message: "[dry-run] Would run setup for project" } : runSetup(projectPath);
       console.log(setupResult.message);
       return { guardrailsDir, exampleCreated: false, setupDone: setupResult.message };
     }
@@ -78,25 +99,39 @@ export function runInit(
         console.log(chalk.yellow("  " + pathLabel + name + "/GUARDRAIL.md already exists"));
         continue;
       }
-      mkdirSync(exampleDir, { recursive: true });
-      writeFileSync(exampleFile, content);
-      console.log(chalk.green("✓") + " Added " + pathLabel + name + "/GUARDRAIL.md");
-      exampleCreated = true;
+      if (dryRun) {
+        console.log(chalk.green("Would add:") + " " + pathLabel + name + "/GUARDRAIL.md");
+      } else {
+        debugLog("write", exampleDir);
+        mkdirSync(exampleDir, { recursive: true });
+        debugLog("write", exampleFile);
+        writeFileSync(exampleFile, content);
+        console.log(chalk.green("✓") + " Added " + pathLabel + name + "/GUARDRAIL.md");
+        exampleCreated = true;
+      }
     }
   } else {
     const exampleDir = join(guardrailsDir, "no-plaintext-secrets");
     const exampleFile = join(exampleDir, "GUARDRAIL.md");
     if (!existsSync(exampleFile)) {
-      mkdirSync(exampleDir, { recursive: true });
-      writeFileSync(exampleFile, TEMPLATES["no-plaintext-secrets"]);
-      exampleCreated = true;
-      console.log(chalk.green("✓") + " Created .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md");
+      if (dryRun) {
+        console.log(
+          chalk.green("Would create:") + " .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md"
+        );
+      } else {
+        debugLog("write", exampleDir);
+        mkdirSync(exampleDir, { recursive: true });
+        debugLog("write", exampleFile);
+        writeFileSync(exampleFile, TEMPLATES["no-plaintext-secrets"]);
+        exampleCreated = true;
+        console.log(chalk.green("✓") + " Created .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md");
+      }
     } else {
       console.log(chalk.yellow("  .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md already exists"));
     }
   }
 
-  const setupResult = runSetup(projectPath); // project-level only
+  const setupResult = runSetup(projectPath, undefined, dryRun);
   console.log(setupResult.message);
 
   return {

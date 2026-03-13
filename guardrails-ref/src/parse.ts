@@ -1,6 +1,7 @@
 import matter from "gray-matter";
 import { readFileSync } from "fs";
 import { resolve, dirname, basename } from "path";
+import { debugLog } from "./debug.js";
 
 export interface GuardrailFrontmatter {
   name: string;
@@ -39,6 +40,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
 
   let content: string;
   try {
+    debugLog("read", filePath);
     content = readFileSync(filePath, "utf-8");
   } catch (err) {
     return {

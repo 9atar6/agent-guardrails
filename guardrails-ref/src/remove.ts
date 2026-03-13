@@ -2,9 +2,15 @@ import { existsSync, readdirSync, rmSync, rmdirSync } from "fs";
 import { join } from "path";
 import chalk from "chalk";
 import { resolveGuardrailsDir } from "./path-utils.js";
+import { debugLog } from "./debug.js";
 import { listGuardrails } from "./validate.js";
 
-export function runRemove(name: string, projectPath: string = ".", userScope = false): boolean {
+export function runRemove(
+  name: string,
+  projectPath: string = ".",
+  userScope = false,
+  dryRun = false
+): boolean {
   const normalized = name.toLowerCase().replace(/\s+/g, "-");
   const guardrailsDir = resolveGuardrailsDir(projectPath, userScope);
   const targetDir = join(guardrailsDir, normalized);
@@ -21,15 +27,27 @@ export function runRemove(name: string, projectPath: string = ".", userScope = f
     return false;
   }
 
+  if (dryRun) {
+    console.log(chalk.green("Would remove:") + " " + pathLabel + normalized);
+    return true;
+  }
+
+  debugLog("write", targetDir);
   rmSync(targetDir, { recursive: true });
   console.log(chalk.green("✓") + " Removed " + pathLabel + normalized);
 
   // Remove parent dir if empty
   try {
+    debugLog("read", guardrailsDir);
     const remaining = readdirSync(guardrailsDir);
     if (remaining.length === 0) {
-      rmdirSync(guardrailsDir);
-      console.log(chalk.green("✓") + " Removed empty " + pathLabel);
+      if (dryRun) {
+        console.log(chalk.green("Would remove empty:") + " " + pathLabel);
+      } else {
+        debugLog("write", guardrailsDir);
+        rmdirSync(guardrailsDir);
+        console.log(chalk.green("✓") + " Removed empty " + pathLabel);
+      }
     }
   } catch {
     // Ignore

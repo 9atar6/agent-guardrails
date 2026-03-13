@@ -2,6 +2,7 @@ import { readdirSync, statSync, readFileSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 import matter from "gray-matter";
 import { parseGuardrailFile, type ParseResult, type ParsedGuardrail } from "./parse.js";
+import { debugLog } from "./debug.js";
 
 /** Canonical frontmatter key order for normalization */
 const FRONTMATTER_KEY_ORDER = [
@@ -39,6 +40,7 @@ function findGuardrailFiles(dir: string, depth = 0, count = { dirs: 0 }): string
   const files: string[] = [];
 
   try {
+    debugLog("read", dir);
     const entries = readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
       if (entry.name === ".git" || entry.name === "node_modules") {
@@ -54,8 +56,10 @@ function findGuardrailFiles(dir: string, depth = 0, count = { dirs: 0 }): string
         files.push(...findGuardrailFiles(fullPath, depth + 1, count));
       }
     }
-  } catch {
-    // Skip directories we can't read
+  } catch (err) {
+    // Log and skip directories we can't read (permissions, deleted, etc.)
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Warning: unable to read directory ${dir}: ${message}`);
   }
 
   return files;
@@ -70,6 +74,7 @@ export function validatePath(inputPath: string): ValidateResult {
   let filesToValidate: string[] = [];
 
   try {
+    debugLog("read", resolved);
     const stat = statSync(resolved);
     if (stat.isFile()) {
       const filename = resolved.split(/[/\\]/).pop() || "";
@@ -79,7 +84,9 @@ export function validatePath(inputPath: string): ValidateResult {
         results.push({
           path: resolved,
           success: false,
-          errors: [`Not a guardrail file (expected GUARDRAIL.md or GUARDRAILS.md): ${filename}. Hint: Use GUARDRAIL.md in a subdir or GUARDRAILS.md at root.`],
+          errors: [
+            `Not a guardrail file (expected GUARDRAIL.md or GUARDRAILS.md): ${filename}. Hint: Use GUARDRAIL.md in a subdir or GUARDRAILS.md at root.`,
+          ],
           warnings: [],
         });
         invalid++;
@@ -87,7 +94,9 @@ export function validatePath(inputPath: string): ValidateResult {
     } else if (stat.isDirectory()) {
       filesToValidate = findGuardrailFiles(resolved);
     }
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Warning: unable to stat path ${resolved}: ${message}`);
     results.push({
       path: resolved,
       success: false,
@@ -143,20 +152,29 @@ function normalizeFrontmatterKeys(data: Record<string, unknown>): Record<string,
 /**
  * Apply fixes to a guardrail file: trim trailing whitespace per line, ensure single trailing newline,
  * and normalize frontmatter key order (name, description, scope, severity, triggers, license, metadata).
- * Returns true if file was modified.
+ * When dryRun is true, no writes occur and the return value indicates whether a change would be made.
+ * Returns true if (or would be) modified.
  */
-export function fixGuardrailFile(filePath: string): boolean {
+export function fixGuardrailFile(filePath: string, dryRun = false): boolean {
+  debugLog("read", filePath);
   const content = readFileSync(filePath, "utf-8");
   let parsed: { data: Record<string, unknown>; content: string };
   try {
     parsed = matter(content);
-  } catch {
-    // Invalid frontmatter: only apply whitespace fix
+  } catch (err) {
+    // Invalid frontmatter: only apply whitespace fix, and surface the issue.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(
+      `Warning: invalid YAML frontmatter in ${filePath}: ${message}. Only whitespace will be normalized; frontmatter remains invalid.`
+    );
     const lines = content.split("\n");
     const fixed = lines.map((l) => l.replace(/\s+$/, "")).join("\n").trimEnd();
     const normalized = fixed + "\n";
     if (content !== normalized) {
-      writeFileSync(filePath, normalized);
+      if (!dryRun) {
+        debugLog("write", filePath);
+        writeFileSync(filePath, normalized);
+      }
       return true;
     }
     return false;
@@ -167,7 +185,10 @@ export function fixGuardrailFile(filePath: string): boolean {
   const normalized = matter.stringify(body, orderedData, { lineWidth: -1 } as Record<string, unknown>);
   const withNewline = normalized.endsWith("\n") ? normalized : normalized + "\n";
   if (content !== withNewline) {
-    writeFileSync(filePath, withNewline);
+    if (!dryRun) {
+      debugLog("write", filePath);
+      writeFileSync(filePath, withNewline);
+    }
     return true;
   }
   return false;
