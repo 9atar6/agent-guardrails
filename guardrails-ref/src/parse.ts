@@ -119,6 +119,31 @@ export function parseGuardrailFile(filePath: string): ParseResult {
     warnings.push(`name "${name}" does not match parent directory "${dirName}". Hint: Rename directory to match, or set name to "${dirName}".`);
   }
 
+  // Body structure hints (non-fatal)
+  if (body.length > 0 && body.length < 40) {
+    warnings.push(
+      "Body content is very short. Hint: Include Trigger, Instruction, and Reason sections for best results."
+    );
+  }
+  const hasTrigger = /##\s+Trigger\b/i.test(body);
+  const hasInstruction = /##\s+Instruction\b/i.test(body);
+  const hasReason = /##\s+Reason\b/i.test(body);
+  if (!hasTrigger) {
+    warnings.push(
+      "Missing `## Trigger` section in body. Hint: Describe when this guardrail applies."
+    );
+  }
+  if (!hasInstruction) {
+    warnings.push(
+      "Missing `## Instruction` section in body. Hint: Describe what the agent must do or must NOT do."
+    );
+  }
+  if (!hasReason) {
+    warnings.push(
+      "Missing `## Reason` section in body. Hint: Explain why this guardrail exists."
+    );
+  }
+
   if (errors.length > 0) {
     return {
       success: false,

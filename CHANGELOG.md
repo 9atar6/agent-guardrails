@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.8] - 2026-03-13
+
+### Added
+
+- **scaffold command** — `npx guardrails-ref scaffold <name>` creates a new guardrail skeleton with valid frontmatter and Trigger/Instruction/Reason sections (supports `--scope`, `--severity`, `--path`, `--user`, `--dry-run` and honors `GUARDRAILS_REF_READONLY`).
+- **New guardrails** — `no-prompt-leaks` (prevent leaking internal prompts and guardrails) and `require-logging-standards` (structured, safe logging); added to the security and production presets where appropriate.
+
+### Changed
+
+- **parse** — Emits non-fatal warnings when guardrail bodies are very short or missing Trigger/Instruction/Reason headings, nudging custom guardrails toward the recommended structure.
+- **presets** — Updated `security` and `production` presets to include the new guardrails.
+- **website examples** — Examples page now lists `no-prompt-leaks` and `require-logging-standards` and reflects updated preset composition.
+
 ## [1.2.7] - 2026-03-13
 
 ### Added

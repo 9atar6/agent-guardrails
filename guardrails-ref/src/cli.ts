@@ -16,6 +16,7 @@ import { runUpgrade } from "./upgrade.js";
 import { resolveGuardrailsDir } from "./path-utils.js";
 import { TEMPLATE_NAMES, PRESETS } from "./templates.js";
 import { setDebug } from "./debug.js";
+import { runScaffold } from "./scaffold.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -262,6 +263,57 @@ program
       if (!runAdd(name, addPath, userScope, dryRun)) failed++;
     }
     process.exit(failed > 0 ? 1 : 0);
+  });
+
+program
+  .command("scaffold <name>")
+  .description(
+    "Create a new guardrail skeleton in .agents/guardrails/<name>/GUARDRAIL.md (or user-level when --user is set)"
+  )
+  .option("-p, --path <path>", "Target directory", ".")
+  .option("-u, --user", "Create in user-level ~/.agents/guardrails/")
+  .option("--scope <scope>", "Scope: global, project, or session", "project")
+  .option(
+    "--severity <severity>",
+    "Severity: critical, warning, or advisory",
+    "warning"
+  )
+  .option("-n, --dry-run", "Show what would be created without writing")
+  .action(function (
+    this: {
+      opts: () => {
+        path?: string;
+        user?: boolean;
+        scope?: string;
+        severity?: string;
+        dryRun?: boolean;
+      };
+    },
+    name: string
+  ) {
+    const opts = this.opts();
+    const userScope = opts.user ?? opts.path === "~";
+    const projectPath = opts.path ?? ".";
+    const readOnlyEnv = isReadOnlyEnv();
+    const dryRun = (opts.dryRun ?? false) || readOnlyEnv;
+
+    const scope =
+      opts.scope === "global" || opts.scope === "session" || opts.scope === "project"
+        ? (opts.scope as "global" | "project" | "session")
+        : "project";
+    const severity =
+      opts.severity === "critical" || opts.severity === "advisory" || opts.severity === "warning"
+        ? (opts.severity as "critical" | "warning" | "advisory")
+        : "warning";
+
+    const ok = runScaffold(name, {
+      projectPath,
+      userScope,
+      scope,
+      severity,
+      dryRun,
+    });
+    process.exit(ok ? 0 : 1);
   });
 
 program
