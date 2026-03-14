@@ -47,11 +47,11 @@ The `guardrails-ref` CLI is designed to be predictable and supply-chain friendly
 | `npx guardrails-ref add <name> [name2 ...] [path]` | Add example guardrail(s) — pass multiple names to add several at once |
 | `npx guardrails-ref add --preset default` | Add default preset (4 guardrails) |
 | `npx guardrails-ref add --preset default,frontend` | Add multiple presets (comma-separated) |
-| `npx guardrails-ref add --preset security` | Add security preset (10 guardrails) |
-| `npx guardrails-ref add --preset quality` | Add quality preset (8 guardrails) |
-| `npx guardrails-ref add --preset frontend` | Add frontend preset (3 guardrails) |
-| `npx guardrails-ref add --preset api` | Add API preset (4 guardrails) |
-| `npx guardrails-ref add --preset production` | Add production preset (8 guardrails) |
+| `npx guardrails-ref add --preset security` | Add security preset (15 guardrails) |
+| `npx guardrails-ref add --preset quality` | Add quality preset (11 guardrails) |
+| `npx guardrails-ref add --preset frontend` | Add frontend preset (7 guardrails) |
+| `npx guardrails-ref add --preset api` | Add API preset (5 guardrails) |
+| `npx guardrails-ref add --preset production` | Add production preset (12 guardrails) |
 | `npx guardrails-ref add <name> --user` or `add <name> ~` | Add to user-level `~/.agents/guardrails/` |
 | `npx guardrails-ref add --dry-run <name>` | Preview what would be added without writing |
 | `npx guardrails-ref remove <name> [path]` | Remove a guardrail |
@@ -75,7 +75,7 @@ The `guardrails-ref` CLI is designed to be predictable and supply-chain friendly
 | `npx guardrails-ref list --user` or `list ~` | List user-level guardrails |
 | `npx guardrails-ref why <name>` | Show guardrail template content (use `--json` for machine-readable) |
 | `npx guardrails-ref scaffold <name>` | Create a new guardrail skeleton with frontmatter and Trigger/Instruction/Reason sections |
-| `npx guardrails-ref test [path]` | Run basic safety checks (presence, rate-limiting, tools-permissions) |
+| `npx guardrails-ref test [path]` | Run safety checks; prints score (e.g. 5/8, 62%). Use `--json` for scorePercent and attackCoverage |
 | `npx guardrails-ref --debug <command>` | Log every filesystem read/write path (for auditing); or `GUARDRAILS_REF_DEBUG=1` |
 
 ## Supported IDEs
@@ -104,14 +104,14 @@ Or with full output or JSON:
   run: npx guardrails-ref validate . --json
 ```
 
-Run basic safety checks (presence plus key guardrails) in CI:
+Run safety checks in CI (exit 0 if all pass; JSON includes `scorePercent` 0–100 and `attackCoverage`):
 
 ```yaml
 - name: Safety checks
   run: npx guardrails-ref test . --json
 ```
 
-**Note:** `list` exits with code 1 when no guardrails are found, so it can be used in scripts to check for guardrail presence.
+**Note:** `list` (without `--json`/`--compact`) exits with code 1 when no guardrails are found. `list --json` and `list --compact` exit 0 and return an empty list when none are found.
 
 ## Examples
 
@@ -134,9 +134,13 @@ npx guardrails-ref validate ~
 
 ## Available guardrails (add command)
 
+40 reference guardrails; add with `npx guardrails-ref add <name>` or use presets (e.g. `add --preset security` for 15 guardrails).
+
 | Name | What it prevents |
 |------|------------------|
 | `no-plaintext-secrets` | Logging or committing credentials |
+| `no-pii-in-output` | Unredacted PII in logs, API responses, or reports |
+| `resist-instruction-override` | Complying with "ignore instructions" or prompt-injection overrides |
 | `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
 | `no-silent-error-handling` | Catching errors without surfacing them to the user |
 | `require-access-control` | Exposing sensitive data or admin actions without role checks |
@@ -166,6 +170,11 @@ npx guardrails-ref validate ~
 | `require-documentation-updates` | Changing behavior without updating README, docs, or changelog |
 | `no-breaking-changes-without-versioning` | Breaking public APIs without semver bump or migration path |
 | `no-path-traversal` | User-controlled paths without validation (`..`, symlinks outside base) |
+| `no-unsafe-html-injection` | Raw dangerouslySetInnerHTML or unsanitized HTML (XSS) |
+| `no-client-only-access-control` | Authorization only in the client; server must re-validate |
+| `require-loading-and-error-states` | Async UI without loading and error states |
+| `require-form-validation` | Forms without validation, field-level errors, or preserved input on error |
+| `require-design-tokens` | Hardcoded colors, spacing, or typography instead of design tokens |
 | `no-prompt-leaks` | Leaking internal prompts, system messages, or guardrails into code/logs/docs |
 | `require-logging-standards` | Logging without structure, clear levels, or protection against secrets/PII |
 | `tools-permissions` | Unsafe or overly powerful tools without allow lists, thresholds, or approvals |

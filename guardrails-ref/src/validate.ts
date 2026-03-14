@@ -160,7 +160,7 @@ export function fixGuardrailFile(filePath: string, dryRun = false): boolean {
   const content = readFileSync(filePath, "utf-8");
   let parsed: { data: Record<string, unknown>; content: string };
   try {
-    parsed = matter(content);
+    parsed = matter(content, { engines: { js: () => ({}) } });
   } catch (err) {
     // Invalid frontmatter: only apply whitespace fix, and surface the issue.
     const message = err instanceof Error ? err.message : String(err);

@@ -11,6 +11,8 @@ AI coding agents (Cursor, Claude Code, VS Code Copilot, etc.) are increasingly c
 
 Guardrails solve this by giving agents a **file-based protocol** they read at session start. Write constraints once, they apply every chat.
 
+**Without guardrails:** The agent has no persistent rules — it may log API keys, run `rm -rf`, or add packages without asking. **With guardrails:** Your project has `.agents/guardrails/*/GUARDRAIL.md` and a rule so the agent reads them at session start; it’s instructed what not to do.
+
 - **For developers:** Define "never do this" rules that persist in your project
 - **For teams:** Share safety rules via version control
 - **For IDE vendors:** A spec to implement native support (like Agent Skills)
@@ -47,7 +49,7 @@ Use `npx guardrails-ref init --user` to create `~/.agents/guardrails/` (user-lev
 
 ```bash
 npx guardrails-ref add --preset default    # 4 essentials
-npx guardrails-ref add --preset frontend  # For web apps: accessibility, i18n, no inline styles
+npx guardrails-ref add --preset frontend  # For web apps: accessibility, no inline styles, no hardcoded strings
 ```
 
 Or combine presets in one command:
@@ -72,8 +74,8 @@ Or add a preset:
 
 ```bash
 npx guardrails-ref add --preset default    # 4 essentials
-npx guardrails-ref add --preset security   # 10 security guardrails
-npx guardrails-ref add --preset quality    # 8 code quality guardrails
+npx guardrails-ref add --preset security   # 15 security guardrails
+npx guardrails-ref add --preset quality   # 11 code quality guardrails
 npx guardrails-ref add --preset default,frontend   # Multiple presets at once
 ```
 
@@ -99,7 +101,7 @@ npx guardrails-ref list . --compact   # One name per line (e.g. pipe to xargs)
 npx guardrails-ref validate . --json   # JSON output for scripting
 npx guardrails-ref validate . --strict # Fail on warnings (CI mode)
 npx guardrails-ref list . --json      # JSON output for scripting
-npx guardrails-ref test .             # Basic safety checks (presence, rate-limiting, tools-permissions)
+npx guardrails-ref test .             # Safety checks + score (e.g. 5/8, 62%); use --json for scorePercent and attackCoverage (CI/shareable)
 ```
 
 ### Remove a guardrail
@@ -155,13 +157,15 @@ Run guardrails check before commits to catch invalid files early. See `examples/
 |----------|-------------|
 | [Specification](spec/specification.md) | Complete format definition |
 | [Client Implementation](spec/client-implementation.md) | How IDE vendors add support |
-| [Examples](examples/) | 33 reference guardrails |
+| [Examples](examples/) | 40 reference guardrails |
 
 ## Example guardrails
 
 | Name | What it prevents |
 |------|------------------|
 | `no-plaintext-secrets` | Logging or committing API keys, passwords |
+| `no-pii-in-output` | Unredacted PII in logs, API responses, or reports |
+| `resist-instruction-override` | Complying with "ignore instructions" or prompt-injection style overrides |
 | `no-placeholder-credentials` | Fake or placeholder API keys instead of asking for real values |
 | `no-silent-error-handling` | Catching errors without surfacing them to the user |
 | `require-access-control` | Exposing sensitive data or admin actions without role checks |
@@ -187,6 +191,18 @@ Run guardrails check before commits to catch invalid files early. See `examples/
 | `no-deprecated-apis` | Suggesting deprecated or obsolete APIs |
 | `no-unsafe-env-assumptions` | Assuming env vars exist without validation |
 | `no-hardcoded-user-facing-strings` | Hardcoded labels, messages, errors in UI |
+| `no-breaking-changes-without-versioning` | Breaking public APIs without semver bump or migration path |
+| `no-path-traversal` | User-controlled paths without validation (.., symlinks) |
+| `no-unsafe-html-injection` | Raw dangerouslySetInnerHTML or unsanitized HTML (XSS) |
+| `no-client-only-access-control` | Authorization enforced only in the client; server must re-validate |
+| `require-loading-and-error-states` | Async UI without loading and error states |
+| `require-form-validation` | Forms without validation, field-level errors, or preserved input on error |
+| `require-design-tokens` | Hardcoded colors, spacing, or typography instead of design tokens |
+| `require-accessibility` | UI without alt text, ARIA, keyboard support, or contrast |
+| `require-api-resilience` | API calls without timeouts, retries, or error handling |
+| `require-documentation-updates` | Changing behavior without updating README, docs, or changelog |
+| `no-prompt-leaks` | Leaking internal prompts, system messages, or hidden guardrails into code, logs, or docs |
+| `require-logging-standards` | Logging without structure, clear levels, or protection against secrets/PII |
 
 ## Development (from source)
 

@@ -52,7 +52,7 @@ export function parseGuardrailFile(filePath: string): ParseResult {
 
   let parsed: { data: Record<string, unknown>; content: string };
   try {
-    parsed = matter(content);
+    parsed = matter(content, { engines: { js: () => ({}) } });
   } catch (err) {
     return {
       success: false,

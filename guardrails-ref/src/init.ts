@@ -115,19 +115,17 @@ export function runInit(
     const exampleFile = join(exampleDir, "GUARDRAIL.md");
     if (!existsSync(exampleFile)) {
       if (dryRun) {
-        console.log(
-          chalk.green("Would create:") + " .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md"
-        );
+        console.log(chalk.green("Would create:") + " " + pathLabel + "no-plaintext-secrets/GUARDRAIL.md");
       } else {
         debugLog("write", exampleDir);
         mkdirSync(exampleDir, { recursive: true });
         debugLog("write", exampleFile);
         writeFileSync(exampleFile, TEMPLATES["no-plaintext-secrets"]);
         exampleCreated = true;
-        console.log(chalk.green("✓") + " Created .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md");
+        console.log(chalk.green("✓") + " Created " + pathLabel + "no-plaintext-secrets/GUARDRAIL.md");
       }
     } else {
-      console.log(chalk.yellow("  .agents/guardrails/no-plaintext-secrets/GUARDRAIL.md already exists"));
+      console.log(chalk.yellow("  " + pathLabel + "no-plaintext-secrets/GUARDRAIL.md already exists"));
     }
   }
 

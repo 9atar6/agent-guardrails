@@ -436,13 +436,13 @@ program
 
     if (opts.json) {
       console.log(JSON.stringify({ guardrails, total: guardrails.length }, null, 2));
-      process.exit(guardrails.length === 0 ? 1 : 0);
+      process.exit(0);
       return;
     }
 
     if (opts.compact) {
       for (const g of guardrails) console.log(g.name);
-      process.exit(guardrails.length === 0 ? 1 : 0);
+      process.exit(0);
       return;
     }
 

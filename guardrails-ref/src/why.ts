@@ -13,7 +13,7 @@ export function runWhy(name: string, json = false): boolean {
   }
 
   if (json) {
-    const parsed = matter(content);
+    const parsed = matter(content, { engines: { js: () => ({}) } });
     const out = {
       name: parsed.data.name ?? normalized,
       description: parsed.data.description ?? "",

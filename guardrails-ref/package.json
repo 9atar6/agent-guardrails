@@ -1,56 +1,56 @@
 {
  "name": "guardrails-ref",
- "version": "1.2.9",
-  "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, check, upgrade, list, why",
-  "type": "module",
-  "main": "dist/validate.js",
-  "bin": {
-    "guardrails-ref": "dist/cli.js"
-  },
-  "scripts": {
-    "build": "node scripts/copy-examples.js && tsc",
-    "test": "npm run build && node --test test/*.test.js",
-    "validate": "node dist/cli.js validate",
-    "check": "node dist/cli.js check",
-    "upgrade": "node dist/cli.js upgrade",
-    "list": "node dist/cli.js list",
-    "prepublishOnly": "npm run build"
-  },
-  "keywords": [
-    "agent",
-    "guardrails",
-    "ai",
-    "cursor",
-    "claude",
-    "copilot",
-    "vscode"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/9atar6/agent-guardrails.git",
-    "directory": "guardrails-ref"
-  },
-  "bugs": "https://github.com/9atar6/agent-guardrails/issues",
-  "homepage": "https://agentguardrails.dev",
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "commander": "^12.1.0",
-    "diff": "^5.2.0",
-    "gray-matter": "^4.0.3"
-  },
-  "devDependencies": {
-    "@types/diff": "^5.2.0",
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.0"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "sideEffects": false,
-  "files": [
-    "dist",
-    "examples",
-    "README.md"
-  ]
+ "version": "1.3.0",
+ "description": "Validate and manage Agent Guardrails (GUARDRAIL.md) — init, add, remove, setup, validate, check, upgrade, list, why, scaffold, test",
+ "type": "module",
+ "main": "dist/validate.js",
+ "bin": {
+  "guardrails-ref": "dist/cli.js"
+ },
+ "scripts": {
+  "build": "node scripts/copy-examples.js && tsc",
+  "test": "npm run build && node --test test/*.test.js",
+  "validate": "node dist/cli.js validate",
+  "check": "node dist/cli.js check",
+  "upgrade": "node dist/cli.js upgrade",
+  "list": "node dist/cli.js list",
+  "prepublishOnly": "npm run build"
+ },
+ "keywords": [
+  "agent",
+  "guardrails",
+  "ai",
+  "cursor",
+  "claude",
+  "copilot",
+  "vscode"
+ ],
+ "license": "MIT",
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/9atar6/agent-guardrails.git",
+  "directory": "guardrails-ref"
+ },
+ "bugs": "https://github.com/9atar6/agent-guardrails/issues",
+ "homepage": "https://agentguardrails.dev",
+ "dependencies": {
+  "chalk": "^5.3.0",
+  "commander": "^12.1.0",
+  "diff": "^5.2.0",
+  "gray-matter": "^4.0.3"
+ },
+ "devDependencies": {
+  "@types/diff": "^5.2.0",
+  "@types/node": "^20.10.0",
+  "typescript": "^5.3.0"
+ },
+ "engines": {
+  "node": ">=18"
+ },
+ "sideEffects": false,
+ "files": [
+  "dist",
+  "examples",
+  "README.md"
+ ]
 }

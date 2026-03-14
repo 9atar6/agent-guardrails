@@ -18,11 +18,13 @@ export function runRemove(
 
   const pathLabel = userScope ? "~/.agents/guardrails/" : ".agents/guardrails/";
   if (!existsSync(targetFile)) {
-    const guardrails = listGuardrails(guardrailsDir);
-    const names = guardrails.map((g) => g.name);
     console.log(chalk.red("Guardrail not found:") + " " + pathLabel + normalized);
-    if (names.length > 0) {
-      console.log(chalk.gray("Installed: " + names.join(", ")));
+    if (existsSync(guardrailsDir)) {
+      const guardrails = listGuardrails(guardrailsDir);
+      const names = guardrails.map((g) => g.name);
+      if (names.length > 0) {
+        console.log(chalk.gray("Installed: " + names.join(", ")));
+      }
     }
     return false;
   }
